@@ -1,0 +1,35 @@
+## Overview
+You are working on a web application that tracks the net worth of my financial portfolio. The appication needs to support following features:
+1. Present the history of net worth over time in a chart. 
+2. Allow me to change the time period of the chart.
+3. Present the asset allocation of my portfolio in a pie chart.
+4. Allow me to view the list of holdings in each asset class.
+
+### Data
+The data is stored in multiple CSV files located in /Users/taohuang/Documents/fidelity_downloads folder. The CSV files are named as "combined_YYYYMMDD.csv". 
+
+### Data Structure
+Each CSV file contains the following columns:
+- Date: The date of the transaction.
+- Account Name: The name of the account.
+- Account Number: The number of the account.
+- Symbol: The symbol of the security.
+- Description: The description of the transaction.
+- Quantity: The quantity of the security.
+- Last Price: The last price of the security.
+- Current Value: The current value of this security.
+- Cost Basis Total: The total cost basis of this security.
+- Average Cost Basis: The average cost basis of this security.
+
+### Net worth tracking
+The net worth is calculated by summing up the current value of all the securities in my portfolio.
+- If a date is missing in the CSV file, the net worth is not updated for that date. Use the last available date to calculate the net worth.
+- Net worth tracking chart should be a line chart that shows the net worth over time.
+- By default, the chart should show the YTD history, with a dropdown to select different time periods, last 30 days, last 6 months, last 1 year, last 3 years, last 5 years, and all time.
+
+### Asset classification
+The asset classification should include the most common asset classes, including Large Cap, Large Blend, Cash, Bonds, etc. You may use Morningstar categories as a reference. 
+- The asset allocation pie chart should show the percentage of each asset class in my portfolio.
+- The pie chart should be interactive, allowing me to hover over each slice to see the percentage and the asset class name.
+- The pie chart should be updated when I select a different time period in the net worth tracking chart.
+- When I select a certain asset class, it shoud list all the holdings and their current value in this asset class.
