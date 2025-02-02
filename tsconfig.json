@@ -1,9 +1,12 @@
 {
   "compilerOptions": {
-    "baseUrl": "src/",
+    "baseUrl": "app/",
     "paths": {
       "@/styles/*": ["styles/*"],
-      "@/components/*": ["components/*"]
+      "@/components/*": ["components/*"],
+      "@/utils/*": ["utils/*"],
+      "@/types/*": ["types/*"],
+      "@/context/*": ["context/*"]
     },
     "target": "ES2017",
     "lib": [
@@ -13,7 +16,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
