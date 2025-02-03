@@ -18,6 +18,8 @@ const COLORS = [
   "#32a852",
   "#1b449e",
   "#b71cbd",
+  "#eb7d34",
+  "#daf5cb",
 ];
 
 export default function AssetAllocationChart() {
@@ -81,7 +83,11 @@ export default function AssetAllocationChart() {
                   0
                 );
                 const percentage = (value / total) * 100;
-                return percentage >= 5 ? `${percentage.toFixed(1)}%` : ""; // Hide labels < 5%
+                return percentage >= 5
+                  ? data.labels[context.dataIndex] +
+                      "\n" +
+                      `${percentage.toFixed(1)}%`
+                  : ""; // Hide labels < 5%
               },
             },
           },
