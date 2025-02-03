@@ -13,9 +13,9 @@ export const assetCategories: AssetCategoryMapping = {
   IVV: { category: "US Equity", subCategory: "Large Blend" },
   SCHX: { category: "US Equity", subCategory: "Large Blend" },
   SWPPX: { category: "US Equity", subCategory: "Large Blend" },
+  VTI: { category: "US Equity", subCategory: "Large Blend" },
 
   // US Total Market
-  VTI: { category: "US Equity", subCategory: "Total Market" },
   ITOT: { category: "US Equity", subCategory: "Total Market" },
   SCHB: { category: "US Equity", subCategory: "Total Market" },
 
