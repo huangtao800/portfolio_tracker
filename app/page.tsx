@@ -1,48 +1,39 @@
-import React from 'react';
-import NetWorthChart from '@/components/NetWorthChart';
-import AssetAllocationChart from '@/components/AssetAllocationChart';
-import TimeRangeSelector from '@/components/TimeRangeSelector';
-import HoldingsList from '@/components/HoldingsList';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import PerformanceMetrics from '@/components/PerformanceMetrics';
-import RefreshButton from '@/components/RefreshButton';
+import { loadPortfolioData, loadTimeSeries } from "./utils/csvParser";
+import SummaryCards from "./components/SummaryCards";
+import HoldingsTable from "./components/HoldingsTable";
+import AllocationBar from "./components/AllocationBar";
+import AssetTypeChart from "./components/AssetTypeChart";
+import NetWorthChart from "./components/NetWorthChart";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default function Home() {
+  const data = loadPortfolioData();
+  const { aggregated, summary } = data;
+  const timeSeries = loadTimeSeries();
+
   return (
-    <main className="p-4 md:p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Portfolio Dashboard</h1>
-        <RefreshButton />
+    <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-2xl font-bold text-white">Portfolio</h1>
+        {summary.date && (
+          <span className="text-sm text-gray-500">as of {summary.date}</span>
+        )}
       </div>
-      
-      <ErrorBoundary>
-        <div className="mb-8">
-          <PerformanceMetrics />
-        </div>
 
-        <div className="mb-8 bg-white rounded-lg shadow-sm">
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-xl font-semibold">Net Worth History</h2>
-            <TimeRangeSelector />
-          </div>
-          <NetWorthChart />
-        </div>
+      <SummaryCards summary={summary} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-4 border-b">
-              <h2 className="text-xl font-semibold">Asset Allocation</h2>
-            </div>
-            <AssetAllocationChart />
-          </div>
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-4 border-b">
-              <h2 className="text-xl font-semibold">Holdings</h2>
-            </div>
-            <HoldingsList />
-          </div>
-        </div>
-      </ErrorBoundary>
+      <NetWorthChart data={timeSeries} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <AssetTypeChart aggregated={aggregated} totalValue={summary.totalValue} />
+        <AllocationBar aggregated={aggregated} totalValue={summary.totalValue} />
+      </div>
+
+      <HoldingsTable
+        aggregated={aggregated}
+        totalValue={summary.totalValue}
+      />
     </main>
   );
 }

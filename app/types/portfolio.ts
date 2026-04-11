@@ -1,26 +1,49 @@
-export interface PortfolioEntry {
+export interface Holding {
+  ticker: string;
+  holdingName: string;
+  exchange: string;
+  broker: string;
+  shares: number;
+  sharePrice: number | null;
+  totalValue: number;
+  totalValueGainPercent: number | null;
+  costBasis: number | null;
+  return1D: number | null;
+  return1M: number | null;
+  return6M: number | null;
   date: string;
-  accountName: string;
-  accountNumber: string;
-  symbol: string;
-  description: string;
-  quantity: number;
-  lastPrice: number;
-  currentValue: number;
-  costBasisTotal: number;
-  averageCostBasis: number;
 }
 
-export interface TimeSeriesData {
+export interface AggregatedHolding {
+  ticker: string;
+  holdingName: string;
+  totalShares: number;
+  totalValue: number;
+  costBasis: number | null;
+  gain: number | null;
+  gainPercent: number | null;
+  return1D: number | null;
+  return1M: number | null;
+  return6M: number | null;
+  brokers: string[];
+}
+
+export interface PortfolioSummary {
+  totalValue: number;
+  totalCostBasis: number;
+  totalGain: number;
+  totalGainPercent: number;
   date: string;
-  netWorth: number;
 }
 
-export interface AssetAllocation {
-  assetClass: string;
-  value: number;
-  percentage: number;
-  holdings: PortfolioEntry[];
+export interface PortfolioData {
+  holdings: Holding[];
+  aggregated: AggregatedHolding[];
+  summary: PortfolioSummary;
 }
 
-export type TimeRange = 'ytd' | '30d' | '6m' | '1y' | '3y' | '5y' | 'all'; 
+export interface TimeSeriesPoint {
+  date: string;
+  totalValue: number;
+  totalCostBasis: number;
+}

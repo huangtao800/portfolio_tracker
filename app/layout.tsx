@@ -1,25 +1,19 @@
-import React from 'react';
-import type { ReactNode } from 'react';
-import { PortfolioProvider } from './context/PortfolioContext';
-import './globals.css';
+import type { Metadata } from "next";
+import "./globals.css";
 
-export const metadata = {
-  title: 'Portfolio Tracker',
-  description: 'Track your investment portfolio performance',
+export const metadata: Metadata = {
+  title: "Portfolio Tracker",
+  description: "Track your investment portfolio",
 };
 
 export default function RootLayout({
-    children,
-  }: {
-    children: ReactNode;
-  }) {
-    return (
-      <html lang="en">
-        <body className="min-h-screen">
-          <PortfolioProvider>
-            {children}
-          </PortfolioProvider>
-        </body>
-      </html>
-    )
-  }
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className="bg-gray-950 text-gray-100 min-h-screen">{children}</body>
+    </html>
+  );
+}
