@@ -1,5 +1,9 @@
-import { loadPortfolioData, loadTimeSeries } from "./utils/csvParser";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "./lib/auth";
+import { loadPortfolioData, loadTimeSeries } from "./lib/queries";
 import { buildCategoryMap } from "./utils/assetCategories";
+import SyncButton from "./components/SyncButton";
 import SummaryCards from "./components/SummaryCards";
 import HoldingsTable from "./components/HoldingsTable";
 import AllocationBar from "./components/AllocationBar";
@@ -9,18 +13,29 @@ import NetWorthChart from "./components/NetWorthChart";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const data = loadPortfolioData();
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.userId) redirect("/login");
+
+  const userId = session.user.userId;
+
+  const [data, timeSeries] = await Promise.all([
+    loadPortfolioData(userId),
+    loadTimeSeries(userId),
+  ]);
+
   const { aggregated, summary } = data;
-  const timeSeries = loadTimeSeries();
   const categoryMap = await buildCategoryMap(aggregated.map((h) => h.ticker));
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Portfolio</h1>
-        {summary.date && (
-          <span className="text-sm text-gray-500">as of {summary.date}</span>
-        )}
+        <div className="flex items-center gap-3">
+          {summary.date && (
+            <span className="text-sm text-gray-500">as of {summary.date}</span>
+          )}
+          <SyncButton />
+        </div>
       </div>
 
       <SummaryCards summary={summary} />
@@ -32,10 +47,7 @@ export default async function Home() {
         <AllocationBar aggregated={aggregated} totalValue={summary.totalValue} />
       </div>
 
-      <HoldingsTable
-        aggregated={aggregated}
-        totalValue={summary.totalValue}
-      />
+      <HoldingsTable aggregated={aggregated} totalValue={summary.totalValue} />
     </main>
   );
 }
