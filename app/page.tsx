@@ -1,4 +1,5 @@
 import { loadPortfolioData, loadTimeSeries } from "./utils/csvParser";
+import { buildCategoryMap } from "./utils/assetCategories";
 import SummaryCards from "./components/SummaryCards";
 import HoldingsTable from "./components/HoldingsTable";
 import AllocationBar from "./components/AllocationBar";
@@ -7,10 +8,11 @@ import NetWorthChart from "./components/NetWorthChart";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
   const data = loadPortfolioData();
   const { aggregated, summary } = data;
   const timeSeries = loadTimeSeries();
+  const categoryMap = await buildCategoryMap(aggregated.map((h) => h.ticker));
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
@@ -26,7 +28,7 @@ export default function Home() {
       <NetWorthChart data={timeSeries} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <AssetTypeChart aggregated={aggregated} totalValue={summary.totalValue} />
+        <AssetTypeChart aggregated={aggregated} totalValue={summary.totalValue} categoryMap={categoryMap} />
         <AllocationBar aggregated={aggregated} totalValue={summary.totalValue} />
       </div>
 

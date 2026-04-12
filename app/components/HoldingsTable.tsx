@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AggregatedHolding } from "../types/portfolio";
 
-type SortKey = "ticker" | "totalShares" | "totalValue" | "alloc" | "costBasis" | "gainPercent" | "return1D" | "return1M" | "return6M";
+type SortKey = "ticker" | "totalShares" | "totalValue" | "alloc" | "costBasis" | "gainPercent";
 type SortDir = "asc" | "desc";
 
 function fmt(n: number): string {
@@ -37,9 +37,6 @@ function sortRows(rows: AggregatedHolding[], key: SortKey, dir: SortDir, totalVa
       case "alloc":       av = a.totalValue / totalValue; bv = b.totalValue / totalValue; break;
       case "costBasis":   av = a.costBasis ?? -Infinity;  bv = b.costBasis ?? -Infinity;  break;
       case "gainPercent": av = a.gainPercent ?? -Infinity; bv = b.gainPercent ?? -Infinity; break;
-      case "return1D":    av = a.return1D ?? -Infinity;   bv = b.return1D ?? -Infinity;   break;
-      case "return1M":    av = a.return1M ?? -Infinity;   bv = b.return1M ?? -Infinity;   break;
-      case "return6M":    av = a.return6M ?? -Infinity;   bv = b.return6M ?? -Infinity;   break;
     }
     if (av < bv) return dir === "asc" ? -1 : 1;
     if (av > bv) return dir === "asc" ? 1 : -1;
@@ -116,9 +113,6 @@ export default function HoldingsTable({ aggregated, totalValue }: Props) {
               <Th col="alloc"       label="Alloc"   className="hidden sm:table-cell" />
               <Th col="costBasis"   label="Cost"    className="hidden md:table-cell" />
               <Th col="gainPercent" label="Gain"    />
-              <Th col="return1D"    label="1D"      />
-              <Th col="return1M"    label="1M"      className="hidden sm:table-cell" />
-              <Th col="return6M"    label="6M"      className="hidden sm:table-cell" />
               <th className="text-left py-3 px-2 text-gray-400 hidden lg:table-cell">Brokers</th>
             </tr>
           </thead>
@@ -145,9 +139,6 @@ export default function HoldingsTable({ aggregated, totalValue }: Props) {
                   {r.costBasis !== null ? fmt(r.costBasis) : "—"}
                 </td>
                 <td className="py-3 px-2 text-right"><PctCell value={r.gainPercent} /></td>
-                <td className="py-3 px-2 text-right"><PctCell value={r.return1D} /></td>
-                <td className="py-3 px-2 text-right hidden sm:table-cell"><PctCell value={r.return1M} /></td>
-                <td className="py-3 px-2 text-right hidden sm:table-cell"><PctCell value={r.return6M} /></td>
                 <td className="py-3 px-2 text-gray-400 text-xs hidden lg:table-cell">
                   {r.brokers.join(", ")}
                 </td>

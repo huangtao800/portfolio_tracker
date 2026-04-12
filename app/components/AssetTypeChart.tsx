@@ -2,11 +2,17 @@
 
 import { useState } from "react";
 import { AggregatedHolding } from "../types/portfolio";
-import {
-  AssetCategory,
-  CATEGORY_COLORS,
-  getCategory,
-} from "../utils/assetCategories";
+
+export type AssetCategory = string;
+
+const CATEGORY_COLORS: Record<string, string> = {
+  "US Large Cap": "#3b82f6",
+  "US Small Cap": "#a855f7",
+  "US Total Market": "#06b6d4",
+  "Bonds": "#f59e0b",
+  "Cash & Short-term": "#10b981",
+  "Other": "#6b7280",
+};
 
 const R = 70;
 const CIRC = 2 * Math.PI * R;
@@ -29,11 +35,12 @@ function fmtPct(n: number | null): string {
 
 function buildSegments(
   aggregated: AggregatedHolding[],
-  totalValue: number
+  totalValue: number,
+  categoryMap: Record<string, AssetCategory>
 ): { category: AssetCategory; value: number; pct: number }[] {
   const map = new Map<AssetCategory, number>();
   for (const h of aggregated) {
-    const cat = getCategory(h.ticker);
+    const cat = categoryMap[h.ticker] ?? "Other";
     map.set(cat, (map.get(cat) ?? 0) + h.totalValue);
   }
   return Array.from(map.entries())
@@ -44,15 +51,17 @@ function buildSegments(
 export default function AssetTypeChart({
   aggregated,
   totalValue,
+  categoryMap,
 }: {
   aggregated: AggregatedHolding[];
   totalValue: number;
+  categoryMap: Record<string, AssetCategory>;
 }) {
   const [selected, setSelected] = useState<AssetCategory | null>(null);
-  const segments = buildSegments(aggregated, totalValue);
+  const segments = buildSegments(aggregated, totalValue, categoryMap);
 
   const selectedHoldings = selected
-    ? aggregated.filter((h) => getCategory(h.ticker) === selected)
+    ? aggregated.filter((h) => (categoryMap[h.ticker] ?? "Other") === selected)
     : [];
 
   const selectedSeg = segments.find((s) => s.category === selected);
