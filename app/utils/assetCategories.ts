@@ -93,12 +93,11 @@ async function fetchCategory(ticker: string): Promise<AssetCategory | null> {
       ticker,
       { modules: ["price", "fundProfile"] },
       { validateResult: false }
-    );
+    ) as { price?: { quoteType?: string; marketCap?: number }; fundProfile?: { categoryName?: string } };
     const quoteType = result.price?.quoteType;
 
     if (quoteType === "ETF" || quoteType === "MUTUALFUND") {
-      const cat = (result.fundProfile as { categoryName?: string } | undefined)
-        ?.categoryName;
+      const cat = result.fundProfile?.categoryName;
       if (cat) return MORNINGSTAR_MAP[cat] ?? fuzzyMap(cat);
     }
 

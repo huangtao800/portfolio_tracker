@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   const existing = await db
     .select({ snapshotId: snapshots.snapshotId })
     .from(snapshots)
-    .where(and(eq(snapshots.userId, userId), eq(snapshots.snapshotDate, snapshotDate)))
+    .where(and(eq(snapshots.userId, userId), eq(snapshots.snapshotDate, new Date(snapshotDate))))
     .limit(1);
 
   let snapshotId: string;
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     await db.delete(holdings).where(eq(holdings.snapshotId, snapshotId));
   } else {
     snapshotId = randomUUID();
-    await db.insert(snapshots).values({ snapshotId, userId, snapshotDate });
+    await db.insert(snapshots).values({ snapshotId, userId, snapshotDate: new Date(snapshotDate) });
   }
 
   // Upsert securities
