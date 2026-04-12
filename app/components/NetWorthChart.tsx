@@ -21,7 +21,9 @@ function fmtCurrency(n: number): string {
 }
 
 function fmtDate(dateStr: string): string {
+if (!dateStr || typeof dateStr !== "string") return "";
   const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d.getTime())) return "";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
 }
 
@@ -107,11 +109,12 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
 
           <XAxis
             dataKey="date"
+            type="category"
+            interval="preserveStartEnd"
             tickFormatter={fmtDate}
             tick={{ fill: "#9ca3af", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
-            minTickGap={60}
           />
           <YAxis
             domain={[yMin, yMax]}

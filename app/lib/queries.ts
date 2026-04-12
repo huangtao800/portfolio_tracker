@@ -1,5 +1,11 @@
 import "server-only";
 import { desc, eq, asc } from "drizzle-orm";
+
+// Drizzle maps MySQL DATE columns to JS Date objects; extract "YYYY-MM-DD" in UTC
+function toDateStr(d: unknown): string {
+  if (d instanceof Date) return d.toISOString().substring(0, 10);
+  return String(d).substring(0, 10);
+}
 import { db } from "./db";
 import { holdings, snapshots, securities } from "./schema";
 import {
@@ -104,7 +110,7 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
     return1D:             r.return1D !== null ? Number(r.return1D) : null,
     return1M:             r.return1M !== null ? Number(r.return1M) : null,
     return6M:             r.return6M !== null ? Number(r.return6M) : null,
-    date:                 String(snapshot.snapshotDate),
+    date:                 toDateStr(snapshot.snapshotDate),
   }));
 
   const aggregated = aggregateHoldings(holdingsList);
@@ -121,7 +127,7 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
       totalCostBasis,
       totalGain,
       totalGainPercent,
-      date: String(snapshot.snapshotDate),
+      date: toDateStr(snapshot.snapshotDate),
     },
   };
 }
@@ -144,7 +150,7 @@ export async function loadTimeSeries(userId: string): Promise<TimeSeriesPoint[]>
     const totalValue = rows.reduce((s, r) => s + Number(r.totalValue), 0);
     const totalCostBasis = rows.reduce((s, r) => s + (r.costBasis !== null ? Number(r.costBasis) : 0), 0);
 
-    points.push({ date: String(snapshot.snapshotDate), totalValue, totalCostBasis });
+    points.push({ date: toDateStr(snapshot.snapshotDate), totalValue, totalCostBasis });
   }
 
   return points;
