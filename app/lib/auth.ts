@@ -26,18 +26,24 @@ export const authOptions: NextAuthOptions = {
       if (!allowed.includes(user.email ?? "")) return false;
 
       // Upsert user into database
-      const existing = await db
-        .select({ userId: users.userId })
-        .from(users)
-        .where(eq(users.email, user.email!))
-        .limit(1);
+      try {
+        const existing = await db
+          .select({ userId: users.userId })
+          .from(users)
+          .where(eq(users.email, user.email!))
+          .limit(1);
 
-      if (existing.length === 0) {
-        await db.insert(users).values({
-          userId: randomUUID(),
-          email: user.email!,
-          name: user.name ?? null,
-        });
+        if (existing.length === 0) {
+          await db.insert(users).values({
+            userId: randomUUID(),
+            email: user.email!,
+            name: user.name ?? null,
+          });
+        }
+      } catch (err) {
+        const cause = (err as { cause?: unknown }).cause;
+        console.error("[auth signIn] DB error:", err, "cause:", cause);
+        throw err;
       }
 
       return true;
@@ -45,13 +51,19 @@ export const authOptions: NextAuthOptions = {
 
     async jwt({ token }) {
       if (token.email) {
-        const row = await db
-          .select({ userId: users.userId })
-          .from(users)
-          .where(eq(users.email, token.email))
-          .limit(1);
+        try {
+          const row = await db
+            .select({ userId: users.userId })
+            .from(users)
+            .where(eq(users.email, token.email))
+            .limit(1);
 
-        if (row.length > 0) token.userId = row[0].userId;
+          if (row.length > 0) token.userId = row[0].userId;
+        } catch (err) {
+          const cause = (err as { cause?: unknown }).cause;
+          console.error("[auth jwt] DB error:", err, "cause:", cause);
+          throw err;
+        }
       }
       return token;
     },
