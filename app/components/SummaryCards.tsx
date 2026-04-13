@@ -10,7 +10,7 @@ function fmt(n: number): string {
     currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(n);
+  }).format(parseFloat(n.toFixed(2)) === 0 ? 0 : n);
 }
 
 function fmtPct(n: number): string {
