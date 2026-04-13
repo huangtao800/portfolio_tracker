@@ -12,45 +12,61 @@ export default function UploadButton() {
   const [message, setMessage] = useState<string>("");
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
 
     setState("uploading");
     setMessage("");
 
-    const formData = new FormData();
-    formData.append("file", file);
+    let succeeded = 0;
+    let failed = 0;
 
-    try {
-      const res = await fetch("/api/upload-csv", { method: "POST", body: formData });
-      const json = await res.json();
-      if (!res.ok) {
-        setMessage(json.error ?? "Upload failed");
-        setState("error");
-      } else {
-        setMessage(`${json.rows} rows · ${json.date}`);
-        setState("done");
-        router.refresh();
+    for (let i = 0; i < files.length; i++) {
+      setMessage(`Uploading ${i + 1}/${files.length}…`);
+      const formData = new FormData();
+      formData.append("file", files[i]);
+
+      try {
+        const res = await fetch("/api/upload-csv", { method: "POST", body: formData });
+        const json = await res.json();
+        if (!res.ok) {
+          failed++;
+          console.error(`Failed to upload ${files[i].name}:`, json.error);
+        } else {
+          succeeded++;
+        }
+      } catch {
+        failed++;
       }
-    } catch {
+    }
+
+    if (inputRef.current) inputRef.current.value = "";
+
+    if (failed === 0) {
+      setMessage(files.length === 1 ? "Uploaded" : `${succeeded} files uploaded`);
+      setState("done");
+      router.refresh();
+    } else if (succeeded === 0) {
       setMessage("Upload failed");
       setState("error");
-    } finally {
-      // Reset so the same file can be re-uploaded if needed
-      if (inputRef.current) inputRef.current.value = "";
-      setTimeout(() => { setState("idle"); setMessage(""); }, 4000);
+    } else {
+      setMessage(`${succeeded}/${files.length} uploaded`);
+      setState("error");
+      router.refresh();
     }
+
+    setTimeout(() => { setState("idle"); setMessage(""); }, 4000);
   };
 
   const color =
-    state === "error" ? "text-red-400"
-    : state === "done" ? "text-green-400"
+    state === "error"     ? "text-red-400"
+    : state === "done"    ? "text-green-400"
     : "text-gray-400 hover:text-gray-200";
 
   const label =
-    state === "uploading" ? "Uploading…"
-    : state === "done"    ? "Uploaded"
-    : state === "error"   ? "Failed"
+    state === "uploading" ? message || "Uploading…"
+    : state === "done"    ? message || "Uploaded"
+    : state === "error"   ? message || "Failed"
     : "Upload";
 
   return (
@@ -59,6 +75,7 @@ export default function UploadButton() {
         ref={inputRef}
         type="file"
         accept=".csv"
+        multiple
         className="hidden"
         onChange={handleChange}
       />
@@ -81,13 +98,8 @@ export default function UploadButton() {
             <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
           </svg>
         )}
-        <span>{label}</span>
+        <span>{state === "uploading" ? label : state === "idle" ? "Upload" : label}</span>
       </button>
-      {message && (
-        <span className={`text-xs ${state === "error" ? "text-red-400" : "text-gray-400"}`}>
-          {message}
-        </span>
-      )}
     </div>
   );
 }
