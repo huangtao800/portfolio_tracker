@@ -37,9 +37,9 @@ const MANUAL_MAP: Record<string, AssetCategory> = {
   TLT: "Bonds",
   SGOV: "Cash & Short-term",
   SPAXX: "Cash & Short-term",
-  USTBILL: "Cash & Short-term",
-  USTBILL1: "Cash & Short-term",
-  USTBILL2: "Cash & Short-term",
+  USTBILL: "Bonds",
+  USTBILL1: "Bonds",
+  USTBILL2: "Bonds",
   DEPOSIT: "Cash & Short-term",
 };
 

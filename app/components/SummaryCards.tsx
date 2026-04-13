@@ -67,9 +67,10 @@ function Card({ label, value, sub, positive, hidden }: CardProps) {
 
 // ── Return card with period selector ────────────────────────────────────────
 
-type Period = "1w" | "1m" | "ytd" | "all";
+type Period = "1d" | "1w" | "1m" | "ytd" | "all";
 
 const PERIODS: { key: Period; label: string }[] = [
+  { key: "1d",  label: "1D"  },
   { key: "1w",  label: "1W"  },
   { key: "1m",  label: "1M"  },
   { key: "ytd", label: "YTD" },
@@ -91,8 +92,10 @@ function getPeriodReturn(
     refDate = new Date(today.getFullYear(), 0, 1);
   } else if (period === "1m") {
     refDate.setMonth(refDate.getMonth() - 1);
-  } else {
+  } else if (period === "1w") {
     refDate.setDate(refDate.getDate() - 7);
+  } else {
+    refDate.setDate(refDate.getDate() - 1); // 1d
   }
 
   const refStr = refDate.toISOString().substring(0, 10);
@@ -126,21 +129,15 @@ function ReturnCard({
     <div className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-widest text-gray-400">Return</span>
-        <div className="flex gap-0.5">
+        <select
+          value={period}
+          onChange={(e) => setPeriod(e.target.value as Period)}
+          className="text-xs bg-gray-700 text-gray-300 rounded px-1.5 py-0.5 border-none outline-none cursor-pointer"
+        >
           {PERIODS.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setPeriod(key)}
-              className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
-                period === key
-                  ? "bg-gray-600 text-white"
-                  : "text-gray-500 hover:text-gray-300"
-              }`}
-            >
-              {label}
-            </button>
+            <option key={key} value={key}>{label}</option>
           ))}
-        </div>
+        </select>
       </div>
       <span className={`text-2xl font-semibold ${valueColor}`}>
         {result ? (
