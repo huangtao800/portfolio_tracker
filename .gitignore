@@ -3,3 +3,4 @@ node_modules/
 .DS_Store
 portfolio_data/
 .env.local
+*.tsbuildinfo
