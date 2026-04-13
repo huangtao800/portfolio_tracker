@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PortfolioSummary, TimeSeriesPoint } from "../types/portfolio";
 import { useHideValues } from "../context/HideValues";
+import { useCountUp } from "../hooks/useCountUp";
 
 function fmt(n: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -38,9 +39,10 @@ interface CardProps {
   sub?: string;
   positive?: boolean | null;
   hidden?: boolean;
+  delay?: number;
 }
 
-function Card({ label, value, sub, positive, hidden }: CardProps) {
+function Card({ label, value, sub, positive, hidden, delay = 0 }: CardProps) {
   const valueColor =
     positive === null || positive === undefined
       ? "text-white"
@@ -49,7 +51,10 @@ function Card({ label, value, sub, positive, hidden }: CardProps) {
       : "text-red-400";
 
   return (
-    <div className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1">
+    <div
+      className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1 animate-slide-up"
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <span className="text-xs uppercase tracking-widest text-gray-400">
         {label}
       </span>
@@ -97,7 +102,6 @@ function getPeriodReturn(
 
   const refStr = refDate.toISOString().substring(0, 10);
   const before = timeSeries.filter((p) => p.date <= refStr);
-  // Fall back to earliest available snapshot if none exists before refDate
   const refPoint = before.length > 0 ? before[before.length - 1] : timeSeries[0];
   if (!refPoint) return null;
 
@@ -111,9 +115,11 @@ function getPeriodReturn(
 function ReturnCard({
   summary,
   timeSeries,
+  delay = 0,
 }: {
   summary: PortfolioSummary;
   timeSeries: TimeSeriesPoint[];
+  delay?: number;
 }) {
   const { hidden } = useHideValues();
   const [period, setPeriod] = useState<Period>("all");
@@ -122,8 +128,14 @@ function ReturnCard({
   const valueColor =
     positive === null ? "text-white" : positive ? "text-emerald-400" : "text-red-400";
 
+  const animPct  = useCountUp(result?.pct  ?? 0);
+  const animGain = useCountUp(result?.gain ?? 0);
+
   return (
-    <div className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1">
+    <div
+      className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1 animate-slide-up"
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-widest text-gray-400">Return</span>
         <div className="flex gap-0.5">
@@ -144,7 +156,7 @@ function ReturnCard({
       </div>
       <span className={`text-2xl font-semibold ${valueColor}`}>
         {result ? (
-          fmtPct(result.pct)
+          fmtPct(animPct)
         ) : (
           <span className="text-base text-gray-500">No data</span>
         )}
@@ -154,7 +166,7 @@ function ReturnCard({
           {hidden ? (
             <span className="tracking-widest text-gray-600">••••</span>
           ) : (
-            (result.gain >= 0 ? "+" : "") + fmt(result.gain)
+            (animGain >= 0 ? "+" : "") + fmt(animGain)
           )}
         </span>
       )}
@@ -172,7 +184,8 @@ export default function SummaryCards({
   timeSeries: TimeSeriesPoint[];
 }) {
   const { hidden, toggle } = useHideValues();
-  const { totalValue, totalCostBasis } = summary;
+  const animValue = useCountUp(summary.totalValue);
+  const animCost  = useCountUp(summary.totalCostBasis);
 
   return (
     <div className="space-y-3">
@@ -186,9 +199,9 @@ export default function SummaryCards({
         </button>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <Card label="Total Value" value={fmt(totalValue)} hidden={hidden} />
-        <Card label="Cost Basis" value={fmt(totalCostBasis)} hidden={hidden} />
-        <ReturnCard summary={summary} timeSeries={timeSeries} />
+        <Card label="Total Value" value={fmt(animValue)}  hidden={hidden} delay={0}   />
+        <Card label="Cost Basis"  value={fmt(animCost)}   hidden={hidden} delay={100} />
+        <ReturnCard summary={summary} timeSeries={timeSeries} delay={200} />
       </div>
     </div>
   );

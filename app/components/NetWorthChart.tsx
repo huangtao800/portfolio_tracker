@@ -89,7 +89,7 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
   const yMax = maxVal + padding;
 
   return (
-    <div className="bg-gray-800 rounded-xl p-5 space-y-4">
+    <div className="bg-gray-800 rounded-xl p-5 space-y-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-gray-100">Portfolio Value</h2>
         {isSinglePoint && (
