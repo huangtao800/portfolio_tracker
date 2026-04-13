@@ -1,6 +1,7 @@
 "use client";
 
-import { PortfolioSummary } from "../types/portfolio";
+import { useState } from "react";
+import { PortfolioSummary, TimeSeriesPoint } from "../types/portfolio";
 import { useHideValues } from "../context/HideValues";
 
 function fmt(n: number): string {
@@ -62,7 +63,112 @@ function Card({ label, value, sub, positive, hidden }: CardProps) {
   );
 }
 
-export default function SummaryCards({ summary }: { summary: PortfolioSummary }) {
+// ── Return card with period selector ────────────────────────────────────────
+
+type Period = "1w" | "1m" | "ytd" | "all";
+
+const PERIODS: { key: Period; label: string }[] = [
+  { key: "1w",  label: "1W"  },
+  { key: "1m",  label: "1M"  },
+  { key: "ytd", label: "YTD" },
+  { key: "all", label: "All" },
+];
+
+function getPeriodReturn(
+  timeSeries: TimeSeriesPoint[],
+  summary: PortfolioSummary,
+  period: Period
+): { gain: number; pct: number } | null {
+  if (period === "all") {
+    return { gain: summary.totalGain, pct: summary.totalGainPercent };
+  }
+
+  const today = new Date();
+  let refDate = new Date(today);
+  if (period === "ytd") {
+    refDate = new Date(today.getFullYear(), 0, 1);
+  } else if (period === "1m") {
+    refDate.setMonth(refDate.getMonth() - 1);
+  } else {
+    refDate.setDate(refDate.getDate() - 7);
+  }
+
+  const refStr = refDate.toISOString().substring(0, 10);
+  const before = timeSeries.filter((p) => p.date <= refStr);
+  if (before.length === 0) return null;
+
+  const past = before[before.length - 1].totalValue;
+  if (past === 0) return null;
+
+  const gain = summary.totalValue - past;
+  return { gain, pct: (gain / past) * 100 };
+}
+
+function ReturnCard({
+  summary,
+  timeSeries,
+}: {
+  summary: PortfolioSummary;
+  timeSeries: TimeSeriesPoint[];
+}) {
+  const { hidden } = useHideValues();
+  const [period, setPeriod] = useState<Period>("all");
+  const result = getPeriodReturn(timeSeries, summary, period);
+  const positive = result ? result.gain >= 0 : null;
+  const valueColor =
+    positive === null ? "text-white" : positive ? "text-emerald-400" : "text-red-400";
+
+  return (
+    <div className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1">
+      <div className="flex items-center justify-between">
+        <span className="text-xs uppercase tracking-widest text-gray-400">Return</span>
+        <div className="flex gap-0.5">
+          {PERIODS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setPeriod(key)}
+              className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
+                period === key
+                  ? "bg-gray-600 text-white"
+                  : "text-gray-500 hover:text-gray-300"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <span className={`text-2xl font-semibold ${valueColor}`}>
+        {hidden ? (
+          <span className="tracking-widest text-gray-600">••••••</span>
+        ) : result ? (
+          fmtPct(result.pct)
+        ) : (
+          <span className="text-base text-gray-500">No data</span>
+        )}
+      </span>
+      {result && (
+        <span className="text-sm text-gray-400">
+          {hidden ? (
+            <span className="tracking-widest text-gray-600">••••</span>
+          ) : (
+            (result.gain >= 0 ? "+" : "") + fmt(result.gain)
+          )}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ── Main export ──────────────────────────────────────────────────────────────
+
+export default function SummaryCards({
+  summary,
+  timeSeries,
+}: {
+  summary: PortfolioSummary;
+  timeSeries: TimeSeriesPoint[];
+}) {
   const { hidden, toggle } = useHideValues();
   const { totalValue, totalCostBasis, totalGain, totalGainPercent } = summary;
 
@@ -87,11 +193,7 @@ export default function SummaryCards({ summary }: { summary: PortfolioSummary })
           positive={totalGain >= 0}
           hidden={hidden}
         />
-        <Card
-          label="Total Return"
-          value={fmtPct(totalGainPercent)}
-          positive={totalGainPercent >= 0}
-        />
+        <ReturnCard summary={summary} timeSeries={timeSeries} />
       </div>
     </div>
   );

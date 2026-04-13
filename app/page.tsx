@@ -40,7 +40,7 @@ export default async function Home() {
       </div>
 
       <HideValuesProvider>
-        <SummaryCards summary={summary} />
+        <SummaryCards summary={summary} timeSeries={timeSeries} />
         <NetWorthChart data={timeSeries} />
       </HideValuesProvider>
 
