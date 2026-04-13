@@ -11,7 +11,7 @@ export default async function LoginPage() {
     <main className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-white">Portfolio Tracker</h1>
+          <h1 className="text-3xl font-bold text-white">Portfolio Roaster</h1>
           <p className="text-gray-400 text-sm">Sign in to view your portfolio</p>
         </div>
 

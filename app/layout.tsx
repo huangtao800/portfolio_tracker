@@ -4,7 +4,7 @@ import AuthProvider from "./components/AuthProvider";
 import UserMenu from "./components/UserMenu";
 
 export const metadata: Metadata = {
-  title: "Portfolio Tracker",
+  title: "Portfolio Roaster",
   description: "Track your investment portfolio",
 };
 
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <header className="border-b border-gray-800">
             <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-              <span className="font-semibold text-gray-100">Portfolio Tracker</span>
+              <span className="font-semibold text-gray-100">Portfolio Roaster</span>
               <UserMenu />
             </div>
           </header>
