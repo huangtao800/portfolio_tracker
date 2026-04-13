@@ -27,6 +27,10 @@ export default async function Home() {
   const { aggregated, summary } = data;
   const categoryMap = await buildCategoryMap(aggregated.map((h) => h.ticker));
 
+  const cashAndBonds = aggregated
+    .filter((h) => ["Cash & Short-term", "Bonds"].includes(categoryMap[h.ticker] ?? ""))
+    .reduce((sum, h) => sum + h.totalValue, 0);
+
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
@@ -40,7 +44,7 @@ export default async function Home() {
       </div>
 
       <HideValuesProvider>
-        <SummaryCards summary={summary} timeSeries={timeSeries} />
+        <SummaryCards summary={summary} timeSeries={timeSeries} cashAndBonds={cashAndBonds} />
         <NetWorthChart data={timeSeries} />
       </HideValuesProvider>
 
