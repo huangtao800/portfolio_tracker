@@ -41,10 +41,6 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
 
   const value = payload.find((p) => p.dataKey === "totalValue")?.value;
-  const cost = payload.find((p) => p.dataKey === "totalCostBasis")?.value;
-  const gain = value !== undefined && cost !== undefined ? value - cost : null;
-  const gainPct =
-    gain !== null && cost ? ((gain / cost) * 100).toFixed(2) : null;
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-sm shadow-xl">
@@ -52,22 +48,6 @@ function CustomTooltip({
       {value !== undefined && (
         <p className="text-white font-semibold">
           {hidden ? "••••••" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(value)}
-        </p>
-      )}
-      {cost !== undefined && (
-        <p className="text-gray-400 text-xs mt-1">
-          Cost basis: {hidden ? "••••••" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(cost)}
-        </p>
-      )}
-      {gain !== null && gainPct !== null && (
-        <p className={`text-xs mt-0.5 ${gain >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-          {hidden ? "••••••" : (
-            <>
-              {gain >= 0 ? "+" : ""}
-              {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(gain)}
-              {" "}({gain >= 0 ? "+" : ""}{gainPct}%)
-            </>
-          )}
         </p>
       )}
     </div>
@@ -106,10 +86,6 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
               <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
               <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
             </linearGradient>
-            <linearGradient id="costGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#6b7280" stopOpacity={0.2} />
-              <stop offset="95%" stopColor="#6b7280" stopOpacity={0} />
-            </linearGradient>
           </defs>
 
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
@@ -134,18 +110,6 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
 
           <Tooltip content={<CustomTooltip hidden={hidden} />} cursor={{ stroke: "#4b5563", strokeWidth: 1 }} />
 
-          {/* Cost basis area — rendered first so it sits behind */}
-          <Area
-            type="monotone"
-            dataKey="totalCostBasis"
-            stroke="#6b7280"
-            strokeWidth={1.5}
-            strokeDasharray="4 3"
-            fill="url(#costGradient)"
-            dot={false}
-            activeDot={false}
-          />
-
           {/* Total value area */}
           <Area
             type="monotone"
@@ -159,22 +123,6 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
         </AreaChart>
       </ResponsiveContainer>
 
-      {/* Legend */}
-      <div className="flex gap-5 text-xs text-gray-400">
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-0.5 bg-blue-500 rounded" />
-          Total value
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span
-            className="inline-block w-4 h-0"
-            style={{
-              borderTop: "1.5px dashed #6b7280",
-            }}
-          />
-          Cost basis
-        </span>
-      </div>
     </div>
   );
 }
