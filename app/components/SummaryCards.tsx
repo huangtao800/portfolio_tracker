@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { PortfolioSummary, TimeSeriesPoint } from "../types/portfolio";
 import { useHideValues } from "../context/HideValues";
 
@@ -65,7 +65,7 @@ function Card({ label, value, sub, positive, hidden }: CardProps) {
   );
 }
 
-// ── Return card with period selector ────────────────────────────────────────
+// ── Period dropdown ──────────────────────────────────────────────────────────
 
 type Period = "1d" | "1w" | "1m" | "ytd" | "all";
 
@@ -76,6 +76,54 @@ const PERIODS: { key: Period; label: string }[] = [
   { key: "ytd", label: "YTD" },
   { key: "all", label: "All" },
 ];
+
+function PeriodDropdown({ value, onChange }: { value: Period; onChange: (p: Period) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const selected = PERIODS.find((p) => p.key === value)!;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 text-xs text-gray-300 bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded transition-colors"
+      >
+        {selected.label}
+        <svg className={`w-3 h-3 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1 w-16 bg-gray-700 rounded-lg shadow-lg overflow-hidden z-10">
+          {PERIODS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => { onChange(key); setOpen(false); }}
+              className={`w-full text-left text-xs px-3 py-1.5 transition-colors ${
+                key === value
+                  ? "text-white bg-gray-600"
+                  : "text-gray-300 hover:bg-gray-600"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Return card ──────────────────────────────────────────────────────────────
 
 function getPeriodReturn(
   timeSeries: TimeSeriesPoint[],
@@ -129,15 +177,7 @@ function ReturnCard({
     <div className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-widest text-gray-400">Return</span>
-        <select
-          value={period}
-          onChange={(e) => setPeriod(e.target.value as Period)}
-          className="text-xs bg-gray-700 text-gray-300 rounded px-1.5 py-0.5 border-none outline-none cursor-pointer"
-        >
-          {PERIODS.map(({ key, label }) => (
-            <option key={key} value={key}>{label}</option>
-          ))}
-        </select>
+        <PeriodDropdown value={period} onChange={setPeriod} />
       </div>
       <span className={`text-2xl font-semibold ${valueColor}`}>
         {result ? (
