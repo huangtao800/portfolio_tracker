@@ -95,9 +95,11 @@ function getPeriodReturn(
 
   const refStr = refDate.toISOString().substring(0, 10);
   const before = timeSeries.filter((p) => p.date <= refStr);
-  if (before.length === 0) return null;
+  // Fall back to earliest available snapshot if none exists before refDate
+  const refPoint = before.length > 0 ? before[before.length - 1] : timeSeries[0];
+  if (!refPoint) return null;
 
-  const past = before[before.length - 1].totalValue;
+  const past = refPoint.totalValue;
   if (past === 0) return null;
 
   const gain = summary.totalValue - past;
