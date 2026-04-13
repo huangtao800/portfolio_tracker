@@ -14,6 +14,8 @@ function fmt(n: number): string {
 }
 
 function fmtPct(n: number): string {
+  const rounded = parseFloat(n.toFixed(2));
+  if (rounded === 0) return "0.00%";
   return (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
 }
 
@@ -116,7 +118,7 @@ function ReturnCard({
   const { hidden } = useHideValues();
   const [period, setPeriod] = useState<Period>("all");
   const result = getPeriodReturn(timeSeries, summary, period);
-  const positive = result ? result.gain >= 0 : null;
+  const positive = result && Math.abs(result.pct) >= 0.005 ? result.gain > 0 : null;
   const valueColor =
     positive === null ? "text-white" : positive ? "text-emerald-400" : "text-red-400";
 
