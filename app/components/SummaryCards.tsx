@@ -170,7 +170,7 @@ export default function SummaryCards({
   timeSeries: TimeSeriesPoint[];
 }) {
   const { hidden, toggle } = useHideValues();
-  const { totalValue, totalCostBasis, totalGain, totalGainPercent } = summary;
+  const { totalValue, totalCostBasis } = summary;
 
   return (
     <div className="space-y-3">
@@ -183,16 +183,9 @@ export default function SummaryCards({
           {hidden ? "Show values" : "Hide values"}
         </button>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Card label="Total Value" value={fmt(totalValue)} hidden={hidden} />
         <Card label="Cost Basis" value={fmt(totalCostBasis)} hidden={hidden} />
-        <Card
-          label="Total Gain"
-          value={fmt(totalGain)}
-          sub={fmtPct(totalGainPercent)}
-          positive={totalGain >= 0}
-          hidden={hidden}
-        />
         <ReturnCard summary={summary} timeSeries={timeSeries} />
       </div>
     </div>
