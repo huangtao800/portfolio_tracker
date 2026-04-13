@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { TimeSeriesPoint } from "../types/portfolio";
+import { useHideValues } from "../context/HideValues";
 
 function fmtCurrency(n: number): string {
   if (n >= 1_000_000)
@@ -30,10 +31,12 @@ function CustomTooltip({
   active,
   payload,
   label,
+  hidden,
 }: {
   active?: boolean;
   payload?: { value: number; dataKey: string; color: string }[];
   label?: string;
+  hidden?: boolean;
 }) {
   if (!active || !payload?.length) return null;
 
@@ -48,19 +51,23 @@ function CustomTooltip({
       <p className="text-gray-400 mb-2">{label ? fmtDate(label) : ""}</p>
       {value !== undefined && (
         <p className="text-white font-semibold">
-          {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(value)}
+          {hidden ? "••••••" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(value)}
         </p>
       )}
       {cost !== undefined && (
         <p className="text-gray-400 text-xs mt-1">
-          Cost basis: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(cost)}
+          Cost basis: {hidden ? "••••••" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(cost)}
         </p>
       )}
       {gain !== null && gainPct !== null && (
         <p className={`text-xs mt-0.5 ${gain >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-          {gain >= 0 ? "+" : ""}
-          {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(gain)}
-          {" "}({gain >= 0 ? "+" : ""}{gainPct}%)
+          {hidden ? "••••••" : (
+            <>
+              {gain >= 0 ? "+" : ""}
+              {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(gain)}
+              {" "}({gain >= 0 ? "+" : ""}{gainPct}%)
+            </>
+          )}
         </p>
       )}
     </div>
@@ -68,6 +75,7 @@ function CustomTooltip({
 }
 
 export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
+  const { hidden } = useHideValues();
   if (data.length === 0) return null;
 
   const isSinglePoint = data.length === 1;
@@ -117,14 +125,14 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
           />
           <YAxis
             domain={[yMin, yMax]}
-            tickFormatter={fmtCurrency}
+            tickFormatter={hidden ? () => "" : fmtCurrency}
             tick={{ fill: "#9ca3af", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
-            width={60}
+            width={hidden ? 16 : 60}
           />
 
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#4b5563", strokeWidth: 1 }} />
+          <Tooltip content={<CustomTooltip hidden={hidden} />} cursor={{ stroke: "#4b5563", strokeWidth: 1 }} />
 
           {/* Cost basis area — rendered first so it sits behind */}
           <Area

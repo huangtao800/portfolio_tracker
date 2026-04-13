@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { PortfolioSummary } from "../types/portfolio";
+import { useHideValues } from "../context/HideValues";
 
 function fmt(n: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -63,14 +63,14 @@ function Card({ label, value, sub, positive, hidden }: CardProps) {
 }
 
 export default function SummaryCards({ summary }: { summary: PortfolioSummary }) {
-  const [hidden, setHidden] = useState(false);
+  const { hidden, toggle } = useHideValues();
   const { totalValue, totalCostBasis, totalGain, totalGainPercent } = summary;
 
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
         <button
-          onClick={() => setHidden((h) => !h)}
+          onClick={toggle}
           className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
         >
           <EyeIcon hidden={hidden} />

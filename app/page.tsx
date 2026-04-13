@@ -9,6 +9,7 @@ import HoldingsTable from "./components/HoldingsTable";
 import AllocationBar from "./components/AllocationBar";
 import AssetTypeChart from "./components/AssetTypeChart";
 import NetWorthChart from "./components/NetWorthChart";
+import { HideValuesProvider } from "./context/HideValues";
 
 export const dynamic = "force-dynamic";
 
@@ -38,9 +39,10 @@ export default async function Home() {
         </div>
       </div>
 
-      <SummaryCards summary={summary} />
-
-      <NetWorthChart data={timeSeries} />
+      <HideValuesProvider>
+        <SummaryCards summary={summary} />
+        <NetWorthChart data={timeSeries} />
+      </HideValuesProvider>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <AssetTypeChart aggregated={aggregated} totalValue={summary.totalValue} categoryMap={categoryMap} />
