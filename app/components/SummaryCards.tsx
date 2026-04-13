@@ -143,9 +143,7 @@ function ReturnCard({
         </div>
       </div>
       <span className={`text-2xl font-semibold ${valueColor}`}>
-        {hidden ? (
-          <span className="tracking-widest text-gray-600">••••••</span>
-        ) : result ? (
+        {result ? (
           fmtPct(result.pct)
         ) : (
           <span className="text-base text-gray-500">No data</span>
