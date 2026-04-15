@@ -32,6 +32,8 @@ export async function fetchSP500Benchmark(
   endDateObj.setDate(endDateObj.getDate() + 5);
   const endDate = toDateStr(endDateObj);
 
+  console.log("[benchmark] fetching VOO from", toDateStr(startDate), "to", endDate);
+
   try {
     const historical = await yahooFinance.historical(
       "VOO",
@@ -39,7 +41,12 @@ export async function fetchSP500Benchmark(
       { validateResult: false }
     ) as { date: Date; close: number }[];
 
-    if (!historical || historical.length === 0) return {};
+    console.log("[benchmark] rows returned:", historical?.length ?? 0);
+
+    if (!historical || historical.length === 0) {
+      console.log("[benchmark] no data returned");
+      return {};
+    }
 
     // Build date -> close price map
     const priceMap: Record<string, number> = {};
@@ -49,7 +56,10 @@ export async function fetchSP500Benchmark(
 
     // Reference price: nearest trading day on or after first snapshot
     const refPrice = nearestPrice(priceMap, timeSeries[0].date);
-    if (!refPrice) return {};
+    if (!refPrice) {
+      console.log("[benchmark] no ref price found for", timeSeries[0].date);
+      return {};
+    }
 
     const refValue = timeSeries[0].totalValue;
 
@@ -61,8 +71,10 @@ export async function fetchSP500Benchmark(
         result[point.date] = refValue * (price / refPrice);
       }
     }
+    console.log("[benchmark] mapped", Object.keys(result).length, "of", timeSeries.length, "points");
     return result;
-  } catch {
+  } catch (err) {
+    console.error("[benchmark] error fetching VOO:", err);
     return {};
   }
 }
