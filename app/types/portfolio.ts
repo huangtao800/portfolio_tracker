@@ -46,5 +46,4 @@ export interface TimeSeriesPoint {
   date: string;
   totalValue: number;
   totalCostBasis: number;
-  benchmarkRatio?: number;
 }

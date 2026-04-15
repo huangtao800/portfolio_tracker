@@ -114,6 +114,22 @@ function fmtDate(dateStr: string): string {
 const usd = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(n);
 
+function offsetDate(dateStr: string, days: number): string {
+  const d = new Date(dateStr + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  return d.toISOString().substring(0, 10);
+}
+
+function nearestVooPrice(cache: Record<string, number>, dateStr: string): number | null {
+  for (let i = 0; i <= 7; i++) {
+    const d = new Date(dateStr + "T00:00:00");
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().substring(0, 10);
+    if (cache[key] !== undefined) return cache[key];
+  }
+  return null;
+}
+
 // ── Tooltip ───────────────────────────────────────────────────────────────────
 
 function CustomTooltip({
@@ -174,28 +190,53 @@ function fmtPct(n: number): string {
 export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
   const { hidden } = useHideValues();
   const [period, setPeriod] = useState<Period>("1w");
+  const [vooCache, setVooCache] = useState<Record<string, number>>({});
+  const earliestFetchedRef = useRef<string | null>(null);
+
+  const filtered      = data.length > 0 ? filterByPeriod(data, period) : [];
+  const periodStartDate = filtered.length > 0 ? filtered[0].date : "";
+
+  // Lazily fetch VOO prices when the period start date requires earlier data
+  useEffect(() => {
+    if (!periodStartDate) return;
+
+    const neededStart = offsetDate(periodStartDate, -7);
+    if (earliestFetchedRef.current !== null && neededStart >= earliestFetchedRef.current) return;
+
+    const fetchEnd = offsetDate(new Date().toISOString().substring(0, 10), 5);
+
+    fetch(`/api/benchmark?period1=${neededStart}&period2=${fetchEnd}`)
+      .then((r) => r.json())
+      .then((prices: Record<string, number>) => {
+        setVooCache((prev) => ({ ...prev, ...prices }));
+        if (earliestFetchedRef.current === null || neededStart < earliestFetchedRef.current) {
+          earliestFetchedRef.current = neededStart;
+        }
+      })
+      .catch(() => {});
+  }, [periodStartDate]);
 
   if (data.length === 0) return null;
 
-  const filtered      = filterByPeriod(data, period);
   const isSinglePoint = filtered.length === 1;
+  const startValue    = filtered[0].totalValue;
+  const currentValue  = filtered[filtered.length - 1].totalValue;
+  const gain          = currentValue - startValue;
+  const gainPct       = startValue > 0 ? (gain / startValue) * 100 : 0;
+  const isZero        = Math.abs(gainPct) < 0.005;
+  const gainColor     = isZero ? "text-gray-400" : gain >= 0 ? "text-emerald-400" : "text-red-400";
 
-  const startValue   = filtered[0].totalValue;
-  const currentValue = filtered[filtered.length - 1].totalValue;
-
-  // Renormalize benchmark to period start so both lines begin at the same value
-  const periodStartRatio = filtered[0].benchmarkRatio;
-  const chartData = filtered.map((p) => ({
-    ...p,
-    benchmarkValue:
-      p.benchmarkRatio != null && periodStartRatio != null
-        ? startValue * (p.benchmarkRatio / periodStartRatio)
+  // Normalize VOO prices to period start portfolio value
+  const periodStartVOO = nearestVooPrice(vooCache, periodStartDate);
+  const chartData = filtered.map((p) => {
+    const vooPrice = periodStartVOO != null ? nearestVooPrice(vooCache, p.date) : null;
+    return {
+      ...p,
+      benchmarkValue: vooPrice != null && periodStartVOO != null
+        ? startValue * (vooPrice / periodStartVOO)
         : undefined,
-  }));
-  const gain         = currentValue - startValue;
-  const gainPct      = startValue > 0 ? (gain / startValue) * 100 : 0;
-  const isZero       = Math.abs(gainPct) < 0.005;
-  const gainColor    = isZero ? "text-gray-400" : gain >= 0 ? "text-emerald-400" : "text-red-400";
+    };
+  });
 
   const allValues = [
     ...chartData.map((d) => d.totalValue),
