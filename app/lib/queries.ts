@@ -1,10 +1,9 @@
 import "server-only";
 import { desc, eq, asc } from "drizzle-orm";
 
-// Drizzle maps MySQL DATE columns to JS Date objects; extract "YYYY-MM-DD" in UTC
-function toDateStr(d: unknown): string {
-  if (d instanceof Date) return d.toISOString().substring(0, 10);
-  return String(d).substring(0, 10);
+// snapshotDate is mode:"string" — Drizzle returns it as-is from MySQL
+function toDateStr(d: string): string {
+  return d.substring(0, 10);
 }
 import { db } from "./db";
 import { holdings, snapshots, securities } from "./schema";

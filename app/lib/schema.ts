@@ -24,7 +24,7 @@ export const securities = mysqlTable("securities", {
 export const snapshots = mysqlTable("snapshots", {
   snapshotId:   varchar("snapshot_id",   { length: 36 }).primaryKey(),
   userId:       varchar("user_id",       { length: 36 }).notNull().references(() => users.userId),
-  snapshotDate: date("snapshot_date").notNull(),
+  snapshotDate: date("snapshot_date", { mode: "string" }).notNull(),
 }, (t) => ({
   uniqUserDate: unique().on(t.userId, t.snapshotDate),
   idxUserId:    index("idx_snapshots_user_id").on(t.userId),

@@ -4,6 +4,7 @@ import { authOptions } from "./lib/auth";
 import { loadPortfolioData, loadTimeSeries } from "./lib/queries";
 import { buildCategoryMap } from "./utils/assetCategories";
 import UploadButton from "./components/UploadButton";
+import SyncButton from "./components/SyncButton";
 import SummaryCards from "./components/SummaryCards";
 import HoldingsTable from "./components/HoldingsTable";
 import AllocationBar from "./components/AllocationBar";
@@ -39,6 +40,7 @@ export default async function Home() {
           {summary.date && (
             <span className="text-sm text-gray-500">as of {summary.date}</span>
           )}
+          <SyncButton />
           <UploadButton />
         </div>
       </div>
