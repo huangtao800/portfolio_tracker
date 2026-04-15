@@ -182,12 +182,25 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
 
   const startValue   = filtered[0].totalValue;
   const currentValue = filtered[filtered.length - 1].totalValue;
+
+  // Renormalize benchmark to period start so both lines begin at the same value
+  const periodStartRatio = filtered[0].benchmarkRatio;
+  const chartData = filtered.map((p) => ({
+    ...p,
+    benchmarkValue:
+      p.benchmarkRatio != null && periodStartRatio != null
+        ? startValue * (p.benchmarkRatio / periodStartRatio)
+        : undefined,
+  }));
   const gain         = currentValue - startValue;
   const gainPct      = startValue > 0 ? (gain / startValue) * 100 : 0;
   const isZero       = Math.abs(gainPct) < 0.005;
   const gainColor    = isZero ? "text-gray-400" : gain >= 0 ? "text-emerald-400" : "text-red-400";
 
-  const allValues = [...filtered.map((d) => d.totalValue), startValue];
+  const allValues = [
+    ...chartData.map((d) => d.totalValue),
+    ...chartData.flatMap((d) => d.benchmarkValue != null ? [d.benchmarkValue] : []),
+  ];
   const minVal  = Math.min(...allValues);
   const maxVal  = Math.max(...allValues);
   const padding = isSinglePoint ? maxVal * 0.1 : (maxVal - minVal) * 0.2 || maxVal * 0.05;
@@ -207,7 +220,7 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
       </div>
 
       <ResponsiveContainer width="100%" height={220}>
-        <AreaChart data={filtered} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+        <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="valueGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />

@@ -52,14 +52,12 @@ export async function fetchSP500Benchmark(
     const refPrice = nearestPrice(priceMap, timeSeries[0].date);
     if (!refPrice) return {};
 
-    const refValue = timeSeries[0].totalValue;
-
-    // Normalize each snapshot date to portfolio's starting value
+    // Store price ratio relative to first snapshot (renormalization happens in the chart)
     const result: Record<string, number> = {};
     for (const point of timeSeries) {
       const price = nearestPrice(priceMap, point.date);
       if (price !== null) {
-        result[point.date] = refValue * (price / refPrice);
+        result[point.date] = price / refPrice;
       }
     }
     return result;
