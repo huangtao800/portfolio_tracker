@@ -39,7 +39,10 @@ export async function fetchSP500Benchmark(
     );
 
     const quotes = chartResult?.quotes;
-    if (!quotes || quotes.length === 0) return {};
+    if (!quotes || quotes.length === 0) {
+      console.error("[benchmark] chart() returned no quotes for range", toDateStr(startDate), "to", endDate);
+      return {};
+    }
 
     // Build date -> close price map
     const priceMap: Record<string, number> = {};
@@ -49,7 +52,10 @@ export async function fetchSP500Benchmark(
 
     // Reference price: nearest trading day on or after first snapshot
     const refPrice = nearestPrice(priceMap, timeSeries[0].date);
-    if (!refPrice) return {};
+    if (!refPrice) {
+      console.error("[benchmark] no ref price found near", timeSeries[0].date, "- available dates:", Object.keys(priceMap).slice(0, 5));
+      return {};
+    }
 
     // Store price ratio relative to first snapshot (renormalization happens in the chart)
     const result: Record<string, number> = {};
@@ -60,7 +66,8 @@ export async function fetchSP500Benchmark(
       }
     }
     return result;
-  } catch {
+  } catch (err) {
+    console.error("[benchmark] failed to fetch VOO:", err);
     return {};
   }
 }
