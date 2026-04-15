@@ -109,6 +109,7 @@ export default function HoldingsTable({ aggregated, totalValue }: Props) {
               <Th col="ticker"      label="Ticker"   align="left" />
               <th className="text-left py-3 px-2 text-gray-400 hidden md:table-cell">Name</th>
               <Th col="totalShares" label="Shares"  className="hidden sm:table-cell" />
+              <th className="py-3 px-2 text-right text-gray-400 hidden sm:table-cell text-xs uppercase tracking-wider">Price</th>
               <Th col="totalValue"  label="Value"   />
               <Th col="alloc"       label="Alloc"   className="hidden sm:table-cell" />
               <Th col="costBasis"   label="Cost"    className="hidden md:table-cell" />
@@ -130,6 +131,11 @@ export default function HoldingsTable({ aggregated, totalValue }: Props) {
                   {r.totalShares % 1 === 0
                     ? r.totalShares.toLocaleString()
                     : r.totalShares.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                </td>
+                <td className="py-3 px-2 text-right font-mono text-gray-300 hidden sm:table-cell">
+                  {r.totalShares > 0
+                    ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(r.totalValue / r.totalShares)
+                    : "—"}
                 </td>
                 <td className="py-3 px-2 text-right font-mono">{fmt(r.totalValue)}</td>
                 <td className="py-3 px-2 text-right text-gray-400 hidden sm:table-cell">
