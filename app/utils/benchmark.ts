@@ -35,8 +35,7 @@ export async function fetchSP500Benchmark(
   try {
     const chartResult = await yahooFinance.chart(
       "VOO",
-      { period1: toDateStr(startDate), period2: endDate, interval: "1d" },
-      { validateResult: false }
+      { period1: toDateStr(startDate), period2: endDate, interval: "1d" }
     );
 
     const quotes = chartResult?.quotes;
