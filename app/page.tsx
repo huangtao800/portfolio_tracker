@@ -42,7 +42,7 @@ export default async function Home() {
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Serving Ass and Assets</h1>
+        <h1 className="text-2xl font-bold text-white">Serving Ass🍑 and Assets📈</h1>
         <div className="flex items-center gap-3">
           {summary.date && (
             <span className="text-sm text-gray-500">as of {summary.date}</span>
@@ -54,14 +54,14 @@ export default async function Home() {
       <HideValuesProvider>
         <SummaryCards summary={summary} cashAndBonds={cashAndBonds} />
         <NetWorthChart data={timeSeriesWithBenchmark} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AssetTypeChart aggregated={aggregated} totalValue={summary.totalValue} categoryMap={categoryMap} />
+          <AllocationBar aggregated={aggregated} totalValue={summary.totalValue} />
+        </div>
+
+        <HoldingsTable aggregated={aggregated} totalValue={summary.totalValue} />
       </HideValuesProvider>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <AssetTypeChart aggregated={aggregated} totalValue={summary.totalValue} categoryMap={categoryMap} />
-        <AllocationBar aggregated={aggregated} totalValue={summary.totalValue} />
-      </div>
-
-      <HoldingsTable aggregated={aggregated} totalValue={summary.totalValue} />
     </main>
   );
 }

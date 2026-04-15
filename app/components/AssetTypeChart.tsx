@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AggregatedHolding } from "../types/portfolio";
+import { useHideValues } from "../context/HideValues";
 
 export type AssetCategory = string;
 
@@ -57,6 +58,7 @@ export default function AssetTypeChart({
   totalValue: number;
   categoryMap: Record<string, AssetCategory>;
 }) {
+  const { hidden } = useHideValues();
   const [selected, setSelected] = useState<AssetCategory | null>(null);
   const segments = buildSegments(aggregated, totalValue, categoryMap);
 
@@ -74,7 +76,7 @@ export default function AssetTypeChart({
 
   return (
     <div className="bg-gray-800 rounded-xl p-5 space-y-4">
-      <h2 className="font-semibold text-gray-100">Asset Type</h2>
+      <h2 className="font-semibold text-gray-100">Asset Allocation</h2>
 
       <div className="flex flex-col sm:flex-row items-center gap-6">
         {/* Ring */}
@@ -120,7 +122,7 @@ export default function AssetTypeChart({
                     {(selectedSeg.pct * 100).toFixed(1)}%
                   </text>
                   <text x={90} y={108} textAnchor="middle" fill="#9ca3af" fontSize="9">
-                    {fmt(selectedSeg.value)}
+                    {hidden ? "••••" : fmt(selectedSeg.value)}
                   </text>
                 </>
               ) : (
@@ -129,7 +131,7 @@ export default function AssetTypeChart({
                     Total
                   </text>
                   <text x={90} y={100} textAnchor="middle" fill="#9ca3af" fontSize="9">
-                    {fmt(totalValue)}
+                    {hidden ? "••••" : fmt(totalValue)}
                   </text>
                 </>
               )}
@@ -162,7 +164,7 @@ export default function AssetTypeChart({
                       {seg.category}
                     </span>
                     <span className="text-sm font-mono text-gray-300 flex-shrink-0">
-                      {fmt(seg.value)}
+                      {hidden ? "••••" : fmt(seg.value)}
                     </span>
                   </div>
                   <div className="mt-1 h-1 bg-gray-600 rounded-full overflow-hidden">
@@ -233,7 +235,7 @@ export default function AssetTypeChart({
                       {h.holdingName}
                     </td>
                     <td className="py-2 px-1 text-right font-mono text-gray-200">
-                      {fmt(h.totalValue)}
+                      {hidden ? <span className="tracking-widest text-gray-600">••••</span> : fmt(h.totalValue)}
                     </td>
                     <td className="py-2 px-1 text-right text-gray-400">
                       {((h.totalValue / totalValue) * 100).toFixed(1)}%
