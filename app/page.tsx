@@ -32,7 +32,7 @@ export default async function Home() {
   ]);
   const timeSeriesWithBenchmark = timeSeries.map((p) => ({
     ...p,
-    benchmarkValue: sp500[p.date],
+    benchmarkRatio: sp500[p.date],
   }));
 
   const cashAndBonds = aggregated
