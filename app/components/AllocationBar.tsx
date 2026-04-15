@@ -1,4 +1,7 @@
+"use client";
+
 import { AggregatedHolding } from "../types/portfolio";
+import { useHideValues } from "../context/HideValues";
 
 const COLORS = [
   "bg-blue-500",
@@ -29,6 +32,7 @@ export default function AllocationBar({
   aggregated: AggregatedHolding[];
   totalValue: number;
 }) {
+  const { hidden } = useHideValues();
   // Show top 8, group rest as "Other"
   const top = aggregated.slice(0, 8);
   const otherValue = aggregated
@@ -50,7 +54,7 @@ export default function AllocationBar({
 
   return (
     <div className="bg-gray-800 rounded-xl p-5 space-y-4">
-      <h2 className="font-semibold text-gray-100">Allocation</h2>
+      <h2 className="font-semibold text-gray-100">Holding Distribution</h2>
 
       {/* Stacked bar */}
       <div className="flex h-6 rounded-full overflow-hidden gap-px">
@@ -76,7 +80,7 @@ export default function AllocationBar({
               {((item.totalValue / totalValue) * 100).toFixed(1)}%
             </span>
             <span className="text-gray-500 hidden sm:inline">
-              {fmt(item.totalValue)}
+              {hidden ? "••••" : fmt(item.totalValue)}
             </span>
           </div>
         ))}
