@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          # Dummy values so Next.js build doesn't fail on missing env vars
+          NEXTAUTH_SECRET: ci
+          NEXTAUTH_URL: http://localhost:3000
+          GOOGLE_CLIENT_ID: ci
+          GOOGLE_CLIENT_SECRET: ci
+          MYSQL_HOST: localhost
+          MYSQL_USER: ci
+          MYSQL_PASSWORD: ci
+          MYSQL_DATABASE: ci
