@@ -2,7 +2,7 @@ import "server-only";
 import YahooFinance from "yahoo-finance2";
 import { TimeSeriesPoint } from "../types/portfolio";
 
-const yahooFinance = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
+const yahooFinance = new YahooFinance({ suppressNotices: ["yahooSurvey", "ripHistorical"] });
 
 function toDateStr(d: Date): string {
   return d.toISOString().substring(0, 10);
@@ -33,18 +33,19 @@ export async function fetchSP500Benchmark(
   const endDate = toDateStr(endDateObj);
 
   try {
-    const historical = await yahooFinance.historical(
+    const chartResult = await yahooFinance.chart(
       "VOO",
       { period1: toDateStr(startDate), period2: endDate, interval: "1d" },
       { validateResult: false }
-    ) as { date: Date; close: number }[];
+    );
 
-    if (!historical || historical.length === 0) return {};
+    const quotes = chartResult?.quotes;
+    if (!quotes || quotes.length === 0) return {};
 
     // Build date -> close price map
     const priceMap: Record<string, number> = {};
-    for (const row of historical) {
-      priceMap[toDateStr(row.date)] = row.close;
+    for (const row of quotes) {
+      if (row.close != null) priceMap[toDateStr(row.date)] = row.close;
     }
 
     // Reference price: nearest trading day on or after first snapshot
