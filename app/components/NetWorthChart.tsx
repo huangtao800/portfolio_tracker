@@ -252,7 +252,7 @@ export default function NetWorthChart({ data }: { data: TimeSeriesPoint[] }) {
     <div className="bg-gray-800 rounded-xl p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-semibold text-gray-100">Portfolio Value</h2>
+          <h2 className="font-semibold text-gray-100">Net Worth</h2>
           <p className={`text-sm mt-0.5 ${gainColor}`}>
             {hidden ? fmtPct(gainPct) : `${fmtGain(gain)}  ${fmtPct(gainPct)}`}
           </p>

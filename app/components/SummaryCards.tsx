@@ -28,16 +28,20 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 interface CardProps {
   label: string;
   value: string;
+  subtitle?: string;
   hidden?: boolean;
 }
 
-function Card({ label, value, hidden }: CardProps) {
+function Card({ label, value, subtitle, hidden }: CardProps) {
   return (
     <div className="bg-gray-800 rounded-xl p-5 flex flex-col gap-1">
       <span className="text-xs uppercase tracking-widest text-gray-400">{label}</span>
       <span className="text-2xl font-semibold text-white">
         {hidden ? <span className="tracking-widest text-gray-600">••••••</span> : value}
       </span>
+      {subtitle && (
+        <span className="text-xs text-gray-500">{subtitle}</span>
+      )}
     </div>
   );
 }
@@ -64,9 +68,10 @@ export default function SummaryCards({
         </button>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <Card label="Total Value"       value={fmt(totalValue)}     hidden={hidden} />
+        <Card label="Net Worth"          value={fmt(totalValue)}     hidden={hidden} />
         <Card label="Cost Basis"        value={fmt(totalCostBasis)} hidden={hidden} />
-        <Card label="Cash & Equivalents" value={fmt(cashAndBonds)}  hidden={hidden} />
+        <Card label="Cash & Equivalents" value={fmt(cashAndBonds)}  hidden={hidden}
+          subtitle={totalValue > 0 ? `${((cashAndBonds / totalValue) * 100).toFixed(1)}% of Net Worth` : undefined} />
       </div>
     </div>
   );
