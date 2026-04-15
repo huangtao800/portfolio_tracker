@@ -16,7 +16,11 @@ export async function GET(request: Request) {
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const chartResult = await yahooFinance.chart("VOO", { period1, period2, interval: "1d" });
+      const chartResult = await yahooFinance.chart(
+        "VOO",
+        { period1, period2, interval: "1d" },
+        { validateResult: false }
+      ) as { quotes?: { date: Date; close: number | null }[] };
       const quotes = chartResult?.quotes;
       if (!quotes || quotes.length === 0) return NextResponse.json({});
 
