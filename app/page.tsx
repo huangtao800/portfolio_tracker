@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "./lib/auth";
 import { loadPortfolioData, loadTimeSeries } from "./lib/queries";
 import { buildCategoryMap } from "./utils/assetCategories";
+import { fetchSP500Benchmark } from "./utils/benchmark";
 import UploadButton from "./components/UploadButton";
 import SummaryCards from "./components/SummaryCards";
 import HoldingsTable from "./components/HoldingsTable";
@@ -25,7 +26,14 @@ export default async function Home() {
   ]);
 
   const { aggregated, summary } = data;
-  const categoryMap = await buildCategoryMap(aggregated.map((h) => h.ticker));
+  const [categoryMap, sp500] = await Promise.all([
+    buildCategoryMap(aggregated.map((h) => h.ticker)),
+    fetchSP500Benchmark(timeSeries),
+  ]);
+  const timeSeriesWithBenchmark = timeSeries.map((p) => ({
+    ...p,
+    benchmarkValue: sp500[p.date],
+  }));
 
   const cashAndBonds = aggregated
     .filter((h) => ["Cash & Short-term", "Bonds"].includes(categoryMap[h.ticker] ?? ""))
@@ -44,8 +52,8 @@ export default async function Home() {
       </div>
 
       <HideValuesProvider>
-        <SummaryCards summary={summary} timeSeries={timeSeries} cashAndBonds={cashAndBonds} />
-        <NetWorthChart data={timeSeries} />
+        <SummaryCards summary={summary} cashAndBonds={cashAndBonds} />
+        <NetWorthChart data={timeSeriesWithBenchmark} />
       </HideValuesProvider>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

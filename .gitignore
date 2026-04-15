@@ -4,3 +4,4 @@ node_modules/
 portfolio_data/
 .env.local
 *.tsbuildinfo
+.vscode/
