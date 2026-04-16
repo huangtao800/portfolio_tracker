@@ -37,12 +37,18 @@ export async function POST() {
 
   const tickers = [...new Set(existingHoldings.map((h) => h.ticker))];
 
-  // Fetch current prices from Yahoo Finance in parallel
+  // Fetch current prices from Yahoo Finance in parallel (skip USD — always $1.00)
   const priceMap = new Map<string, { price: number; return1d: number | null }>();
   const fallbackTickers: string[] = [];
 
+  for (const ticker of tickers) {
+    if (ticker === "USD") {
+      priceMap.set("USD", { price: 1.0, return1d: 0 });
+    }
+  }
+
   await Promise.allSettled(
-    tickers.map(async (ticker) => {
+    tickers.filter((t) => t !== "USD").map(async (ticker) => {
       try {
         const quote = await yahooFinance.quote(ticker);
         if (quote.regularMarketPrice != null) {
