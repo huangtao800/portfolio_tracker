@@ -41,6 +41,7 @@ const MANUAL_MAP: Record<string, AssetCategory> = {
   USTBILL1: "Bonds",
   USTBILL2: "Bonds",
   DEPOSIT: "Cash & Short-term",
+  USD: "Cash & Short-term",
 };
 
 export function getCategory(ticker: string): AssetCategory {
@@ -117,7 +118,7 @@ async function fetchCategory(ticker: string): Promise<AssetCategory | null> {
 export async function buildCategoryMap(
   tickers: string[]
 ): Promise<Record<string, AssetCategory>> {
-  const uncached = tickers.filter((t) => !cache.has(t));
+  const uncached = tickers.filter((t) => !cache.has(t) && !(t in MANUAL_MAP));
 
   if (uncached.length > 0) {
     const results = await Promise.allSettled(
