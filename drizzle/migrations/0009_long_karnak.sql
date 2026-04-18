@@ -1,0 +1,1 @@
+ALTER TABLE `holdings` ADD `account_id` varchar(36);
