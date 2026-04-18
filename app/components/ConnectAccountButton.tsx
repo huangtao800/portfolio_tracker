@@ -19,6 +19,8 @@ export default function ConnectAccountButton() {
   }, []);
 
   const onSuccess = useCallback(async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
+    document.body.style.removeProperty("overflow");
+    document.documentElement.style.removeProperty("overflow");
     await fetch("/api/plaid/exchange-token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -32,7 +34,8 @@ export default function ConnectAccountButton() {
   }, []);
 
   const onExit = useCallback(() => {
-    document.body.style.overflow = "";
+    document.body.style.removeProperty("overflow");
+    document.documentElement.style.removeProperty("overflow");
   }, []);
 
   const { open, ready } = usePlaidLink({
