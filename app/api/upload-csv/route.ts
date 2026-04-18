@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   if (rows.length === 0)
     return NextResponse.json({ error: "No valid rows found in CSV" }, { status: 400 });
 
-  // Determine snapshot date from the CSV date column only
+  // Validate all rows have a valid date
   const snapshotDate = rows[0].date?.trim() ?? "";
   if (!DATE_RE.test(snapshotDate))
     return NextResponse.json(
@@ -37,23 +37,14 @@ export async function POST(request: Request) {
       { status: 400 }
     );
 
-  // If a snapshot for this date already exists, replace its holdings
-  const existing = await db
-    .select({ snapshotId: snapshots.snapshotId })
-    .from(snapshots)
-    .where(and(eq(snapshots.userId, userId), eq(snapshots.snapshotDate, snapshotDate)))
-    .limit(1);
-
-  let snapshotId: string;
-  if (existing.length > 0) {
-    snapshotId = existing[0].snapshotId;
-    await db.delete(holdings).where(eq(holdings.snapshotId, snapshotId));
-  } else {
-    snapshotId = randomUUID();
-    await db.insert(snapshots).values({ snapshotId, userId, snapshotDate });
+  // Group rows by accountId
+  const byAccount = new Map<string, typeof rows>();
+  for (const row of rows) {
+    if (!byAccount.has(row.accountId)) byAccount.set(row.accountId, []);
+    byAccount.get(row.accountId)!.push(row);
   }
 
-  // Upsert securities — look up by ticker first to reuse existing securityId
+  // Upsert securities for all rows up front
   for (const row of rows) {
     const [existing] = await db
       .select({ securityId: securities.securityId })
@@ -69,24 +60,44 @@ export async function POST(request: Request) {
       .onDuplicateKeyUpdate({ set: { name: row.name, exchange: row.exchange || null } });
   }
 
-  // Insert holdings
-  await db.insert(holdings).values(
-    rows.map((row) => ({
-      holdingId:         randomUUID(),
-      snapshotId,
-      ticker:            row.ticker,
-      securityId:        row.securityId!,
-      broker:            row.broker,
-      shares:            row.shares,
-      sharePrice:        row.sharePrice,
-      totalValue:        row.totalValue,
-      costBasis:         row.costBasis,
-      totalValueGainPct: row.totalValueGainPct,
-      return1d:          row.return1d,
-      return1m:          row.return1m,
-      return6m:          row.return6m,
-    }))
-  );
+  // Create or replace a snapshot per account
+  let totalRows = 0;
+  for (const [accountId, accountRows] of byAccount) {
+    const existing = await db
+      .select({ snapshotId: snapshots.snapshotId })
+      .from(snapshots)
+      .where(and(eq(snapshots.accountId, accountId), eq(snapshots.snapshotDate, snapshotDate)))
+      .limit(1);
 
-  return NextResponse.json({ ok: true, rows: rows.length, date: snapshotDate });
+    let snapshotId: string;
+    if (existing.length > 0) {
+      snapshotId = existing[0].snapshotId;
+      await db.delete(holdings).where(eq(holdings.snapshotId, snapshotId));
+    } else {
+      snapshotId = randomUUID();
+      await db.insert(snapshots).values({ snapshotId, userId, accountId, snapshotDate });
+    }
+
+    await db.insert(holdings).values(
+      accountRows.map((row) => ({
+        holdingId:         randomUUID(),
+        snapshotId,
+        ticker:            row.ticker,
+        securityId:        row.securityId!,
+        broker:            row.broker,
+        shares:            row.shares,
+        sharePrice:        row.sharePrice,
+        totalValue:        row.totalValue,
+        costBasis:         row.costBasis,
+        totalValueGainPct: row.totalValueGainPct,
+        return1d:          row.return1d,
+        return1m:          row.return1m,
+        return6m:          row.return6m,
+      }))
+    );
+
+    totalRows += accountRows.length;
+  }
+
+  return NextResponse.json({ ok: true, rows: totalRows, accounts: byAccount.size, date: snapshotDate });
 }

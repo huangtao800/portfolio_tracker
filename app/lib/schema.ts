@@ -52,10 +52,12 @@ export const plaidItems = mysqlTable("plaid_items", {
 export const snapshots = mysqlTable("snapshots", {
   snapshotId:   varchar("snapshot_id",   { length: 36 }).primaryKey(),
   userId:       varchar("user_id",       { length: 36 }).notNull().references(() => users.userId),
+  accountId:    varchar("account_id",    { length: 36 }),
   snapshotDate: date("snapshot_date", { mode: "string" }).notNull(),
 }, (t) => ({
-  uniqUserDate: unique().on(t.userId, t.snapshotDate),
-  idxUserId:    index("idx_snapshots_user_id").on(t.userId),
+  uniqAccountDate: unique().on(t.accountId, t.snapshotDate),
+  idxUserId:       index("idx_snapshots_user_id").on(t.userId),
+  idxAccountId:    index("idx_snapshots_account_id").on(t.accountId),
 }));
 
 export const holdings = mysqlTable("holdings", {
