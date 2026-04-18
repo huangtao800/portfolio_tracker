@@ -58,6 +58,7 @@ export const holdings = mysqlTable("holdings", {
   snapshotId:         varchar("snapshot_id",           { length: 36  }).notNull().references(() => snapshots.snapshotId),
   ticker:             varchar("ticker",                { length: 20  }),
   securityId:         varchar("security_id",           { length: 36  }).notNull(),
+  accountId:          varchar("account_id",            { length: 36  }),
   broker:             varchar("broker",                { length: 100 }).notNull(),
   shares:             decimal("shares",                { precision: 18, scale: 6 }).notNull(),
   sharePrice:         decimal("share_price",           { precision: 18, scale: 4 }),

@@ -64,6 +64,13 @@
       "when": 1776489866255,
       "tag": "0008_nosy_pretty_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1776490206825,
+      "tag": "0009_long_karnak",
+      "breakpoints": true
     }
   ]
 }
