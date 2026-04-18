@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { usePlaidLink, PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 
 export default function ConnectAccountButton() {
@@ -35,11 +35,16 @@ export default function ConnectAccountButton() {
 
   const onExit = useCallback(() => {
     setLinkToken(null);
-    setTimeout(() => {
-      document.body.style.removeProperty("overflow");
-      document.documentElement.style.removeProperty("overflow");
-    }, 0);
   }, []);
+
+  // Restore scroll whenever linkToken is cleared
+  useEffect(() => {
+    if (linkToken) return;
+    document.body.style.removeProperty("overflow");
+    document.documentElement.style.removeProperty("overflow");
+    // Also remove any leftover Plaid iframes
+    document.querySelectorAll("iframe[id^='plaid-link']").forEach((el) => el.remove());
+  }, [linkToken]);
 
   const { open, ready } = usePlaidLink({
     token: linkToken,
