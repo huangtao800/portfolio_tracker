@@ -69,7 +69,7 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
   const allSnapshots = await db
     .select()
     .from(snapshots)
-    .where(eq(snapshots.userId, userId))
+    .where(and(eq(snapshots.userId, userId), isNotNull(snapshots.accountId)))
     .orderBy(desc(snapshots.snapshotDate));
 
   if (allSnapshots.length === 0) return EMPTY_PORTFOLIO;
@@ -77,7 +77,7 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
   // Latest snapshot per account (accountId key; null accounts each get their own key)
   const latestPerAccount = new Map<string, typeof allSnapshots[0]>();
   for (const s of allSnapshots) {
-    const key = s.accountId ?? s.snapshotId;
+    const key = s.accountId!;
     if (!latestPerAccount.has(key)) latestPerAccount.set(key, s);
   }
 
@@ -144,21 +144,27 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
 
 export async function loadTimeSeries(userId: string): Promise<TimeSeriesPoint[]> {
   const snapshotList = await db
-    .select({ snapshotId: snapshots.snapshotId, snapshotDate: snapshots.snapshotDate })
+    .select({ snapshotId: snapshots.snapshotId, snapshotDate: snapshots.snapshotDate, accountId: snapshots.accountId })
     .from(snapshots)
-    .where(eq(snapshots.userId, userId))
+    .where(and(eq(snapshots.userId, userId), isNotNull(snapshots.accountId)))
     .orderBy(asc(snapshots.snapshotDate));
 
   if (snapshotList.length === 0) return [];
 
-  // Group snapshot IDs by date so multiple accounts on the same date are summed together
-  const byDate = new Map<string, string[]>();
+  // Group snapshots by accountId, sorted asc by date
+  const byAccount = new Map<string, Array<{ date: string; snapshotId: string }>>();
+  const allDatesSet = new Set<string>();
   for (const s of snapshotList) {
     const date = toDateStr(s.snapshotDate);
-    if (!byDate.has(date)) byDate.set(date, []);
-    byDate.get(date)!.push(s.snapshotId);
+    allDatesSet.add(date);
+    const accountId = s.accountId!;
+    if (!byAccount.has(accountId)) byAccount.set(accountId, []);
+    byAccount.get(accountId)!.push({ date, snapshotId: s.snapshotId });
   }
 
+  const allDates = Array.from(allDatesSet).sort();
+
+  // Load all holdings for all snapshots in one query
   const allSnapshotIds = snapshotList.map((s) => s.snapshotId);
   const allHoldings = await db
     .select({ snapshotId: holdings.snapshotId, totalValue: holdings.totalValue, costBasis: holdings.costBasis })
@@ -171,13 +177,22 @@ export async function loadTimeSeries(userId: string): Promise<TimeSeriesPoint[]>
     holdingsBySnapshot.get(h.snapshotId)!.push(h);
   }
 
+  // For each date, carry forward each account's last known snapshot
   const points: TimeSeriesPoint[] = [];
-  for (const [date, ids] of byDate) {
+  for (const date of allDates) {
     let totalValue = 0, totalCostBasis = 0;
-    for (const id of ids) {
-      for (const h of holdingsBySnapshot.get(id) ?? []) {
-        totalValue += Number(h.totalValue);
-        totalCostBasis += h.costBasis !== null ? Number(h.costBasis) : 0;
+    for (const accountSnapshots of byAccount.values()) {
+      // Find latest snapshot on or before this date (list is sorted asc)
+      let latestSnapshotId: string | null = null;
+      for (const s of accountSnapshots) {
+        if (s.date <= date) latestSnapshotId = s.snapshotId;
+        else break;
+      }
+      if (latestSnapshotId) {
+        for (const h of holdingsBySnapshot.get(latestSnapshotId) ?? []) {
+          totalValue += Number(h.totalValue);
+          totalCostBasis += h.costBasis !== null ? Number(h.costBasis) : 0;
+        }
       }
     }
     points.push({ date, totalValue, totalCostBasis });
