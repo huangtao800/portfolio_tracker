@@ -16,9 +16,10 @@ export const users = mysqlTable("users", {
 });
 
 export const securities = mysqlTable("securities", {
-  ticker:   varchar("ticker",   { length: 20  }).primaryKey(),
-  name:     varchar("name",     { length: 255 }).notNull(),
-  exchange: varchar("exchange", { length: 20  }),
+  ticker:     varchar("ticker",      { length: 20  }).primaryKey(),
+  name:       varchar("name",        { length: 255 }).notNull(),
+  exchange:   varchar("exchange",    { length: 20  }),
+  securityId: varchar("security_id", { length: 36  }),
 });
 
 export const snapshots = mysqlTable("snapshots", {

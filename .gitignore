@@ -5,3 +5,4 @@ portfolio_data/
 .env.local
 *.tsbuildinfo
 .vscode/
+scripts/
