@@ -12,6 +12,7 @@ export interface RawHolding {
   return1m: string | null;
   return6m: string | null;
   date: string;
+  accountId: string;
   securityId?: string;
 }
 
@@ -55,6 +56,7 @@ export function parseCsv(content: string): RawHolding[] {
       return1m:         parseNum(c[10]),
       return6m:         parseNum(c[11]),
       date:             c[12]?.trim() ?? "",
+      accountId:        c[13]?.trim() ?? "",
     });
   }
   return rows;

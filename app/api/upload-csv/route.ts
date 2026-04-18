@@ -29,19 +29,25 @@ export async function POST(request: Request) {
   if (rows.length === 0)
     return NextResponse.json({ error: "No valid rows found in CSV" }, { status: 400 });
 
-  // Determine snapshot date from the CSV date column only
+  // Determine snapshot date and account from the CSV
   const snapshotDate = rows[0].date?.trim() ?? "";
+  const accountId    = rows[0].accountId?.trim() ?? "";
   if (!DATE_RE.test(snapshotDate))
     return NextResponse.json(
       { error: "CSV is missing a valid date column (expected YYYY-MM-DD)." },
       { status: 400 }
     );
+  if (!accountId)
+    return NextResponse.json(
+      { error: "CSV is missing an account_id column." },
+      { status: 400 }
+    );
 
-  // If a snapshot for this date already exists, replace its holdings
+  // If a snapshot for this account+date already exists, replace its holdings
   const existing = await db
     .select({ snapshotId: snapshots.snapshotId })
     .from(snapshots)
-    .where(and(eq(snapshots.userId, userId), eq(snapshots.snapshotDate, snapshotDate)))
+    .where(and(eq(snapshots.accountId, accountId), eq(snapshots.snapshotDate, snapshotDate)))
     .limit(1);
 
   let snapshotId: string;
@@ -50,7 +56,7 @@ export async function POST(request: Request) {
     await db.delete(holdings).where(eq(holdings.snapshotId, snapshotId));
   } else {
     snapshotId = randomUUID();
-    await db.insert(snapshots).values({ snapshotId, userId, snapshotDate });
+    await db.insert(snapshots).values({ snapshotId, userId, accountId, snapshotDate });
   }
 
   // Upsert securities — look up by ticker first to reuse existing securityId
