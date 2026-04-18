@@ -7,7 +7,8 @@ import { plaidClient } from "../../../lib/plaid";
 export async function POST() {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.userId;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const response = await plaidClient.linkTokenCreate({
     user: { client_user_id: userId },
@@ -17,7 +18,7 @@ export async function POST() {
     language: "en",
     account_filters: {
       investment: {
-        account_subtypes: [InvestmentAccountSubtype.Brokerage, InvestmentAccountSubtype.NonTaxableBrokerageAccount],
+        account_subtypes: [InvestmentAccountSubtype.All],
       },
     },
   });
