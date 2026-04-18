@@ -1,0 +1,1 @@
+ALTER TABLE `holdings` ADD `security_id` varchar(36);
