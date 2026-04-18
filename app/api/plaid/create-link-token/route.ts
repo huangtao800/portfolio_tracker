@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { CountryCode, Products } from "plaid";
+import { CountryCode, Products, InvestmentAccountSubtype } from "plaid";
 import { authOptions } from "../../../lib/auth";
 import { plaidClient } from "../../../lib/plaid";
 
@@ -17,7 +17,7 @@ export async function POST() {
     language: "en",
     account_filters: {
       investment: {
-        account_subtypes: [],
+        account_subtypes: [InvestmentAccountSubtype.Brokerage, InvestmentAccountSubtype.NonTaxableBrokerageAccount],
       },
     },
   });
