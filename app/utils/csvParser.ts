@@ -12,6 +12,7 @@ export interface RawHolding {
   return1m: string | null;
   return6m: string | null;
   date: string;
+  securityId?: string;
 }
 
 function parseNum(val: string): string | null {
