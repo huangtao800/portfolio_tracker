@@ -25,7 +25,7 @@ export const securities = mysqlTable("securities", {
 export const accounts = mysqlTable("accounts", {
   accountId:      varchar("account_id",       { length: 36  }).primaryKey(),
   userId:         varchar("user_id",          { length: 36  }).notNull(),
-  itemId:         varchar("item_id",          { length: 36  }),
+  plaidItemId:    varchar("plaid_item_id",     { length: 36  }),
   plaidAccountId: varchar("plaid_account_id", { length: 255 }).unique(),
   name:           varchar("name",             { length: 255 }).notNull(),
   type:           varchar("type",             { length: 50  }),

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "d404ba8f-d88e-4d34-b3ad-2032c3860717",
+  "id": "238011e9-bc0d-4276-98e4-1c1583e3bf7c",
   "prevId": "21e9c379-432a-4239-b4b8-3ce32f97f96c",
   "tables": {
     "accounts": {
@@ -21,8 +21,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "item_id": {
-          "name": "item_id",
+        "plaid_item_id": {
+          "name": "plaid_item_id",
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": false,

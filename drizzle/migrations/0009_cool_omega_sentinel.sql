@@ -1,7 +1,7 @@
 CREATE TABLE `accounts` (
 	`account_id` varchar(36) NOT NULL,
 	`user_id` varchar(36) NOT NULL,
-	`item_id` varchar(36),
+	`plaid_item_id` varchar(36),
 	`plaid_account_id` varchar(255),
 	`name` varchar(255) NOT NULL,
 	`type` varchar(50),
