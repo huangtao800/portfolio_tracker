@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       holdingId:         randomUUID(),
       snapshotId,
       ticker:            row.ticker,
-      securityId:        row.securityId ?? null,
+      securityId:        row.securityId!,
       broker:            row.broker,
       shares:            row.shares,
       sharePrice:        row.sharePrice,
