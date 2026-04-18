@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { randomUUID } from "crypto";
+import { eq } from "drizzle-orm";
 import { authOptions } from "../../../lib/auth";
 import { plaidClient } from "../../../lib/plaid";
 import { db } from "../../../lib/db";
@@ -19,32 +20,49 @@ export async function POST(request: Request) {
   });
   const { access_token: accessToken, item_id: plaidItemId } = exchangeResponse.data;
 
-  // Save plaid item
-  const itemId = randomUUID();
-  await db.insert(plaidItems).values({
-    itemId,
-    userId,
-    plaidItemId,
-    accessToken,
-    institutionId: institutionId ?? null,
-    institutionName: institutionName ?? null,
-  });
+  // Upsert plaid item (reconnecting the same institution reuses the same plaid_item_id)
+  await db
+    .insert(plaidItems)
+    .values({
+      itemId: randomUUID(),
+      userId,
+      plaidItemId,
+      accessToken,
+      institutionId:   institutionId ?? null,
+      institutionName: institutionName ?? null,
+    })
+    .onDuplicateKeyUpdate({
+      set: { accessToken, institutionId: institutionId ?? null, institutionName: institutionName ?? null },
+    });
 
-  // Fetch accounts from Plaid and save them
+  // Look up our internal itemId after upsert
+  const [savedItem] = await db
+    .select({ itemId: plaidItems.itemId })
+    .from(plaidItems)
+    .where(eq(plaidItems.plaidItemId, plaidItemId))
+    .limit(1);
+  const itemId = savedItem.itemId;
+
+  // Fetch accounts from Plaid and upsert them
   const accountsResponse = await plaidClient.accountsGet({ access_token: accessToken });
   const plaidAccounts = accountsResponse.data.accounts;
 
   for (const acct of plaidAccounts) {
-    await db.insert(accounts).values({
-      accountId:      randomUUID(),
-      userId,
-      plaidItemId:    itemId,
-      plaidAccountId: acct.account_id,
-      name:           acct.name,
-      type:           acct.type,
-      subtype:        acct.subtype ?? null,
-      source:         "plaid",
-    });
+    await db
+      .insert(accounts)
+      .values({
+        accountId:      randomUUID(),
+        userId,
+        plaidItemId:    itemId,
+        plaidAccountId: acct.account_id,
+        name:           acct.name,
+        type:           acct.type,
+        subtype:        acct.subtype ?? null,
+        source:         "plaid",
+      })
+      .onDuplicateKeyUpdate({
+        set: { name: acct.name, type: acct.type, subtype: acct.subtype ?? null, plaidItemId: itemId },
+      });
   }
 
   return NextResponse.json({ ok: true, accounts: plaidAccounts.length });
