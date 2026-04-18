@@ -43,6 +43,20 @@
       "when": 1776484438361,
       "tag": "0005_cynical_shinko_yamashiro",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1776486286291,
+      "tag": "0006_little_wendigo",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1776486515429,
+      "tag": "0007_blushing_smiling_tiger",
+      "breakpoints": true
     }
   ]
 }

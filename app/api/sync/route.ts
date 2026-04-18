@@ -35,7 +35,7 @@ export async function POST() {
     return NextResponse.json({ error: "No holdings in latest snapshot" }, { status: 400 });
   }
 
-  const tickers = [...new Set(existingHoldings.map((h) => h.ticker))];
+  const tickers = [...new Set(existingHoldings.map((h) => h.ticker).filter((t): t is string => t !== null))];
 
   // Fetch current prices from Yahoo Finance in parallel (skip USD — always $1.00)
   const priceMap = new Map<string, { price: number; return1d: number | null }>();
@@ -87,7 +87,7 @@ export async function POST() {
 
   // Build new holdings with updated prices
   const newHoldings = existingHoldings.map((h) => {
-    const fetched = priceMap.get(h.ticker);
+    const fetched = h.ticker ? priceMap.get(h.ticker) : undefined;
     const sharePrice = fetched?.price ?? (h.sharePrice != null ? Number(h.sharePrice) : null);
     const shares = Number(h.shares);
     const totalValue = sharePrice != null ? shares * sharePrice : Number(h.totalValue);
@@ -102,7 +102,7 @@ export async function POST() {
       holdingId: randomUUID(),
       snapshotId,
       ticker: h.ticker,
-      securityId: h.securityId ?? null,
+      securityId: h.securityId,
       broker: h.broker,
       shares: h.shares,
       sharePrice: sharePrice != null ? String(sharePrice) : null,

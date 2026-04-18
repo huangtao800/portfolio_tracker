@@ -1,5 +1,5 @@
 import "server-only";
-import { desc, eq, asc } from "drizzle-orm";
+import { desc, eq, asc, isNotNull, and } from "drizzle-orm";
 
 // snapshotDate is mode:"string" — Drizzle returns it as-is from MySQL
 function toDateStr(d: string): string {
@@ -93,11 +93,11 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
     })
     .from(holdings)
     .innerJoin(securities, eq(holdings.ticker, securities.ticker))
-    .where(eq(holdings.snapshotId, snapshot.snapshotId))
+    .where(and(eq(holdings.snapshotId, snapshot.snapshotId), isNotNull(holdings.ticker)))
     .orderBy(desc(holdings.totalValue));
 
   const holdingsList: Holding[] = rows.map((r) => ({
-    ticker:               r.ticker,
+    ticker:               r.ticker ?? "",
     holdingName:          r.holdingName,
     exchange:             r.exchange ?? "",
     broker:               r.broker,
