@@ -21,7 +21,7 @@ export const securities = mysqlTable("securities", {
   ticker:          varchar("ticker",            { length: 20  }).unique(),
   name:            varchar("name",              { length: 255 }).notNull(),
   exchange:        varchar("exchange",          { length: 20  }),
-  plaidSecurityId: varchar("plaid_security_id", { length: 255 }).unique(),
+  plaidSecurityId: varchar("plaid_security_id", { length: 36  }).unique(),
   type:            varchar("type",              { length: 50  }),
   subtype:         varchar("subtype",           { length: 50  }),
   isCashEquivalent: boolean("is_cash_equivalent"),

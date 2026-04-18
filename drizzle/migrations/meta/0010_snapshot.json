@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "2f907770-1ef4-421f-b552-d40ca82d88da",
+  "id": "6f219252-c4ab-4129-b226-5e00647bbe4f",
   "prevId": "c306ae9a-7751-416c-b0da-0f543d014e7c",
   "tables": {
     "accounts": {
@@ -343,7 +343,7 @@
         },
         "plaid_security_id": {
           "name": "plaid_security_id",
-          "type": "varchar(255)",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
