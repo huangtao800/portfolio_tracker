@@ -1,0 +1,1 @@
+ALTER TABLE `holdings` DROP FOREIGN KEY `holdings_ticker_securities_ticker_fk`;

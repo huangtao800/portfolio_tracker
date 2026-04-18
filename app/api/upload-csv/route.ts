@@ -61,11 +61,11 @@ export async function POST(request: Request) {
       .where(eq(securities.ticker, row.ticker))
       .limit(1);
 
-    const securityId = existing?.securityId ?? randomUUID();
+    row.securityId = existing?.securityId ?? randomUUID();
 
     await db
       .insert(securities)
-      .values({ securityId, ticker: row.ticker, name: row.name, exchange: row.exchange || null })
+      .values({ securityId: row.securityId, ticker: row.ticker, name: row.name, exchange: row.exchange || null })
       .onDuplicateKeyUpdate({ set: { name: row.name, exchange: row.exchange || null } });
   }
 
@@ -75,6 +75,7 @@ export async function POST(request: Request) {
       holdingId:         randomUUID(),
       snapshotId,
       ticker:            row.ticker,
+      securityId:        row.securityId!,
       broker:            row.broker,
       shares:            row.shares,
       sharePrice:        row.sharePrice,
