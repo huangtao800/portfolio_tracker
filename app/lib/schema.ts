@@ -22,6 +22,18 @@ export const securities = mysqlTable("securities", {
   exchange:   varchar("exchange",    { length: 20  }),
 });
 
+export const accounts = mysqlTable("accounts", {
+  accountId:      varchar("account_id",       { length: 36  }).primaryKey(),
+  userId:         varchar("user_id",          { length: 36  }).notNull(),
+  itemId:         varchar("item_id",          { length: 36  }),
+  plaidAccountId: varchar("plaid_account_id", { length: 255 }).unique(),
+  name:           varchar("name",             { length: 255 }).notNull(),
+  type:           varchar("type",             { length: 50  }),
+  subtype:        varchar("subtype",          { length: 50  }),
+  source:         varchar("source",           { length: 20  }).notNull(),
+  createdAt:      timestamp("created_at").defaultNow().notNull(),
+});
+
 export const plaidItems = mysqlTable("plaid_items", {
   itemId:          varchar("item_id",          { length: 36  }).primaryKey(),
   userId:          varchar("user_id",          { length: 36  }).notNull(),
