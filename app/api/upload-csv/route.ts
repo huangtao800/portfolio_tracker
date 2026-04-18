@@ -53,11 +53,19 @@ export async function POST(request: Request) {
     await db.insert(snapshots).values({ snapshotId, userId, snapshotDate });
   }
 
-  // Upsert securities
+  // Upsert securities — look up by ticker first to reuse existing securityId
   for (const row of rows) {
+    const [existing] = await db
+      .select({ securityId: securities.securityId })
+      .from(securities)
+      .where(eq(securities.ticker, row.ticker))
+      .limit(1);
+
+    const securityId = existing?.securityId ?? randomUUID();
+
     await db
       .insert(securities)
-      .values({ ticker: row.ticker, name: row.name, exchange: row.exchange || null })
+      .values({ securityId, ticker: row.ticker, name: row.name, exchange: row.exchange || null })
       .onDuplicateKeyUpdate({ set: { name: row.name, exchange: row.exchange || null } });
   }
 

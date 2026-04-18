@@ -22,6 +22,13 @@
       "when": 1776482203467,
       "tag": "0002_normal_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1776483109452,
+      "tag": "0003_serious_gorilla_man",
+      "breakpoints": true
     }
   ]
 }
