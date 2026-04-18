@@ -37,9 +37,6 @@ export default async function Home() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Serving Ass🍑 and Assets📈</h1>
         <div className="flex items-center gap-3">
-          {summary.date && (
-            <span className="text-sm text-gray-500">as of {summary.date}</span>
-          )}
           <SyncButton />
           <UploadButton />
         </div>

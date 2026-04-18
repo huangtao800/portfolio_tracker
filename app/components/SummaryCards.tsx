@@ -58,7 +58,10 @@ export default function SummaryCards({
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        {summary.date && (
+          <span className="text-sm text-gray-500">as of {summary.date}</span>
+        )}
         <button
           onClick={toggle}
           className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
