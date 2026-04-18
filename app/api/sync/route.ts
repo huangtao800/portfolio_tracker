@@ -102,7 +102,7 @@ export async function POST() {
       holdingId: randomUUID(),
       snapshotId,
       ticker: h.ticker,
-      securityId: h.securityId ?? null,
+      securityId: h.securityId,
       broker: h.broker,
       shares: h.shares,
       sharePrice: sharePrice != null ? String(sharePrice) : null,
