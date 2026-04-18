@@ -5,6 +5,7 @@ import { loadPortfolioData, loadTimeSeries } from "./lib/queries";
 import { buildCategoryMap } from "./utils/assetCategories";
 import UploadButton from "./components/UploadButton";
 import SyncButton from "./components/SyncButton";
+import ConnectAccountButton from "./components/ConnectAccountButton";
 import SummaryCards from "./components/SummaryCards";
 import HoldingsTable from "./components/HoldingsTable";
 import AllocationBar from "./components/AllocationBar";
@@ -37,6 +38,7 @@ export default async function Home() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Serving Ass🍑 and Assets📈</h1>
         <div className="flex items-center gap-3">
+          <ConnectAccountButton />
           <SyncButton />
           <UploadButton />
         </div>
