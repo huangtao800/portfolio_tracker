@@ -37,13 +37,12 @@ export default function ConnectAccountButton() {
     setLinkToken(null);
   }, []);
 
-  // Restore scroll whenever linkToken is cleared
+  // Restore scroll when linkToken is cleared — react-plaid-link calls destroy() internally
+  // but doesn't always restore overflow, so we do it here as a safety net
   useEffect(() => {
     if (linkToken) return;
     document.body.style.removeProperty("overflow");
     document.documentElement.style.removeProperty("overflow");
-    // Also remove any leftover Plaid iframes
-    document.querySelectorAll("iframe[id^='plaid-link']").forEach((el) => el.remove());
   }, [linkToken]);
 
   const { open, ready } = usePlaidLink({
