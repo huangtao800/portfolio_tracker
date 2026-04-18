@@ -50,6 +50,13 @@
       "when": 1776486286291,
       "tag": "0006_little_wendigo",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1776486515429,
+      "tag": "0007_blushing_smiling_tiger",
+      "breakpoints": true
     }
   ]
 }

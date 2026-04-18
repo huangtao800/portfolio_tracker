@@ -1,0 +1,1 @@
+ALTER TABLE `holdings` MODIFY COLUMN `security_id` varchar(36) NOT NULL;
