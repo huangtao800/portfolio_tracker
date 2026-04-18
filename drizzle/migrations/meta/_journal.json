@@ -71,6 +71,13 @@
       "when": 1776490206825,
       "tag": "0009_long_karnak",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1776527640698,
+      "tag": "0010_grey_whirlwind",
+      "breakpoints": true
     }
   ]
 }

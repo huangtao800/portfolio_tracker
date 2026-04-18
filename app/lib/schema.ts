@@ -4,6 +4,7 @@ import {
   timestamp,
   date,
   decimal,
+  boolean,
   index,
   unique,
 } from "drizzle-orm/mysql-core";
@@ -16,10 +17,14 @@ export const users = mysqlTable("users", {
 });
 
 export const securities = mysqlTable("securities", {
-  securityId: varchar("security_id", { length: 36  }).primaryKey(),
-  ticker:     varchar("ticker",      { length: 20  }).unique(),
-  name:       varchar("name",        { length: 255 }).notNull(),
-  exchange:   varchar("exchange",    { length: 20  }),
+  securityId:      varchar("security_id",       { length: 36  }).primaryKey(),
+  ticker:          varchar("ticker",            { length: 20  }).unique(),
+  name:            varchar("name",              { length: 255 }).notNull(),
+  exchange:        varchar("exchange",          { length: 20  }),
+  plaidSecurityId: varchar("plaid_security_id", { length: 255 }).unique(),
+  type:            varchar("type",              { length: 50  }),
+  subtype:         varchar("subtype",           { length: 50  }),
+  isCashEquivalent: boolean("is_cash_equivalent"),
 });
 
 export const accounts = mysqlTable("accounts", {
