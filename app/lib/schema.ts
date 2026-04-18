@@ -22,6 +22,16 @@ export const securities = mysqlTable("securities", {
   exchange:   varchar("exchange",    { length: 20  }),
 });
 
+export const plaidItems = mysqlTable("plaid_items", {
+  itemId:          varchar("item_id",          { length: 36  }).primaryKey(),
+  userId:          varchar("user_id",          { length: 36  }).notNull(),
+  plaidItemId:     varchar("plaid_item_id",    { length: 255 }).notNull().unique(),
+  accessToken:     varchar("access_token",     { length: 255 }).notNull(),
+  institutionId:   varchar("institution_id",   { length: 100 }),
+  institutionName: varchar("institution_name", { length: 255 }),
+  createdAt:       timestamp("created_at").defaultNow().notNull(),
+});
+
 export const snapshots = mysqlTable("snapshots", {
   snapshotId:   varchar("snapshot_id",   { length: 36 }).primaryKey(),
   userId:       varchar("user_id",       { length: 36 }).notNull().references(() => users.userId),
