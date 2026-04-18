@@ -31,9 +31,14 @@ export default function ConnectAccountButton() {
     window.location.reload();
   }, []);
 
+  const onExit = useCallback(() => {
+    document.body.style.overflow = "";
+  }, []);
+
   const { open, ready } = usePlaidLink({
     token: linkToken,
     onSuccess,
+    onExit,
   });
 
   const handleClick = useCallback(async () => {
