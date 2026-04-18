@@ -1,0 +1,1 @@
+ALTER TABLE `holdings` MODIFY COLUMN `ticker` varchar(20);

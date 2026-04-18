@@ -34,7 +34,7 @@ export const snapshots = mysqlTable("snapshots", {
 export const holdings = mysqlTable("holdings", {
   holdingId:          varchar("holding_id",            { length: 36  }).primaryKey(),
   snapshotId:         varchar("snapshot_id",           { length: 36  }).notNull().references(() => snapshots.snapshotId),
-  ticker:             varchar("ticker",                { length: 20  }).notNull(),
+  ticker:             varchar("ticker",                { length: 20  }),
   securityId:         varchar("security_id",           { length: 36  }),
   broker:             varchar("broker",                { length: 100 }).notNull(),
   shares:             decimal("shares",                { precision: 18, scale: 6 }).notNull(),

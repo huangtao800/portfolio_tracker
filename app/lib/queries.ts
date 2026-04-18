@@ -97,7 +97,7 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
     .orderBy(desc(holdings.totalValue));
 
   const holdingsList: Holding[] = rows.map((r) => ({
-    ticker:               r.ticker,
+    ticker:               r.ticker!,
     holdingName:          r.holdingName,
     exchange:             r.exchange ?? "",
     broker:               r.broker,
