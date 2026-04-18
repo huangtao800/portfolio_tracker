@@ -54,6 +54,7 @@ export async function POST(request: Request) {
   }
 
   // Upsert securities — look up by ticker first to reuse existing securityId
+  const tickerToSecurityId = new Map<string, string>();
   for (const row of rows) {
     const [existing] = await db
       .select({ securityId: securities.securityId })
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     const securityId = existing?.securityId ?? randomUUID();
+    tickerToSecurityId.set(row.ticker, securityId);
 
     await db
       .insert(securities)
@@ -75,6 +77,7 @@ export async function POST(request: Request) {
       holdingId:         randomUUID(),
       snapshotId,
       ticker:            row.ticker,
+      securityId:        tickerToSecurityId.get(row.ticker) ?? null,
       broker:            row.broker,
       shares:            row.shares,
       sharePrice:        row.sharePrice,
