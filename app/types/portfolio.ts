@@ -8,9 +8,6 @@ export interface Holding {
   totalValue: number;
   totalValueGainPercent: number | null;
   costBasis: number | null;
-  return1D: number | null;
-  return1M: number | null;
-  return6M: number | null;
   date: string;
 }
 
@@ -22,9 +19,6 @@ export interface AggregatedHolding {
   costBasis: number | null;
   gain: number | null;
   gainPercent: number | null;
-  return1D: number | null;
-  return1M: number | null;
-  return6M: number | null;
   brokers: string[];
 }
 

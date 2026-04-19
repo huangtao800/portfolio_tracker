@@ -90,9 +90,6 @@ export async function POST(request: Request) {
         totalValue:        row.totalValue,
         costBasis:         row.costBasis,
         totalValueGainPct: row.totalValueGainPct,
-        return1d:          row.return1d,
-        return1m:          row.return1m,
-        return6m:          row.return6m,
       }))
     );
 
