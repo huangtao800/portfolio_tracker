@@ -29,9 +29,6 @@ function aggregateHoldings(rows: Holding[]): AggregatedHolding[] {
         costBasis: null,
         gain: null,
         gainPercent: null,
-        return1D: h.return1D,
-        return1M: h.return1M,
-        return6M: h.return6M,
         brokers: [],
       });
     }
@@ -98,9 +95,6 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
       totalValue:            holdings.totalValue,
       totalValueGainPercent: holdings.totalValueGainPct,
       costBasis:             holdings.costBasis,
-      return1D:              holdings.return1d,
-      return1M:              holdings.return1m,
-      return6M:              holdings.return6m,
     })
     .from(holdings)
     .innerJoin(securities, eq(holdings.ticker, securities.ticker))
@@ -117,9 +111,6 @@ export async function loadPortfolioData(userId: string): Promise<PortfolioData> 
     totalValue:            Number(r.totalValue),
     totalValueGainPercent: r.totalValueGainPercent !== null ? Number(r.totalValueGainPercent) : null,
     costBasis:             r.costBasis !== null ? Number(r.costBasis) : null,
-    return1D:              r.return1D !== null ? Number(r.return1D) : null,
-    return1M:              r.return1M !== null ? Number(r.return1M) : null,
-    return6M:              r.return6M !== null ? Number(r.return6M) : null,
     date:                  toDateStr(latestDate),
   }));
 

@@ -38,12 +38,12 @@ export async function POST() {
   const tickers = [...new Set(existingHoldings.map((h) => h.ticker).filter((t): t is string => t !== null))];
 
   // Fetch current prices from Yahoo Finance in parallel (skip USD — always $1.00)
-  const priceMap = new Map<string, { price: number; return1d: number | null }>();
+  const priceMap = new Map<string, number>();
   const fallbackTickers: string[] = [];
 
   for (const ticker of tickers) {
     if (ticker === "USD") {
-      priceMap.set("USD", { price: 1.0, return1d: 0 });
+      priceMap.set("USD", 1.0);
     }
   }
 
@@ -52,10 +52,7 @@ export async function POST() {
       try {
         const quote = await yahooFinance.quote(ticker);
         if (quote.regularMarketPrice != null) {
-          priceMap.set(ticker, {
-            price: quote.regularMarketPrice,
-            return1d: quote.regularMarketChangePercent ?? null,
-          });
+          priceMap.set(ticker, quote.regularMarketPrice);
         } else {
           throw new Error("No regularMarketPrice in response");
         }
@@ -87,8 +84,8 @@ export async function POST() {
 
   // Build new holdings with updated prices
   const newHoldings = existingHoldings.map((h) => {
-    const fetched = h.ticker ? priceMap.get(h.ticker) : undefined;
-    const sharePrice = fetched?.price ?? (h.sharePrice != null ? Number(h.sharePrice) : null);
+    const fetchedPrice = h.ticker ? priceMap.get(h.ticker) : undefined;
+    const sharePrice = fetchedPrice ?? (h.sharePrice != null ? Number(h.sharePrice) : null);
     const shares = Number(h.shares);
     const totalValue = sharePrice != null ? shares * sharePrice : Number(h.totalValue);
     const costBasis = h.costBasis != null ? Number(h.costBasis) : null;
@@ -96,7 +93,6 @@ export async function POST() {
       costBasis != null && costBasis > 0
         ? ((totalValue - costBasis) / costBasis) * 100
         : h.totalValueGainPct != null ? Number(h.totalValueGainPct) : null;
-    const return1d = fetched?.return1d ?? (h.return1d != null ? Number(h.return1d) : null);
 
     return {
       holdingId: randomUUID(),
@@ -109,9 +105,6 @@ export async function POST() {
       totalValue: String(totalValue),
       costBasis: h.costBasis,
       totalValueGainPct: totalValueGainPct != null ? String(totalValueGainPct) : null,
-      return1d: return1d != null ? String(return1d) : null,
-      return1m: h.return1m,
-      return6m: h.return6m,
     };
   });
 

@@ -206,7 +206,6 @@ export default function AssetTypeChart({
                 <th className="text-right py-2 px-1">Value</th>
                 <th className="text-right py-2 px-1">Alloc</th>
                 <th className="text-right py-2 px-1">Gain</th>
-                <th className="text-right py-2 px-1 hidden sm:table-cell">1D</th>
               </tr>
             </thead>
             <tbody>
@@ -215,12 +214,6 @@ export default function AssetTypeChart({
                   h.gainPercent === null
                     ? "text-gray-500"
                     : h.gainPercent >= 0
-                    ? "text-emerald-400"
-                    : "text-red-400";
-                const ret1dColor =
-                  h.return1D === null
-                    ? "text-gray-500"
-                    : h.return1D >= 0
                     ? "text-emerald-400"
                     : "text-red-400";
                 return (
@@ -242,9 +235,6 @@ export default function AssetTypeChart({
                     </td>
                     <td className={`py-2 px-1 text-right ${gainColor}`}>
                       {fmtPct(h.gainPercent)}
-                    </td>
-                    <td className={`py-2 px-1 text-right hidden sm:table-cell ${ret1dColor}`}>
-                      {fmtPct(h.return1D)}
                     </td>
                   </tr>
                 );
